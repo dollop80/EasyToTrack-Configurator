@@ -1,0 +1,69 @@
+<div class="tab-firmware_flasher_avr toolbar_fixed_bottom">
+    <div class="content_wrapper">
+        <div class="options gui_box">
+            <div class="spacer">
+                <table class="cf_table" style="margin-top: 10px;">
+                    <tr class="device_type">
+                        <td>
+                            <select name="device_type">
+                                <!-- options generated at runtime -->
+								    <option value="1">EasyToTrack Sender</option>
+                                    <option value="2">EasyToTrack OSD</option>
+                                    <option value="3">EasyToTrack GS</option>
+                            </select>
+                        </td>
+                        <td><span class="description" i18n="firmwareFlasherOnlineSelectBuildType"></span></td>
+                    </tr>
+                    <tr>
+                        <td><select name="firmware_version">
+                                <option value="0" i18n="firmwareFlasherOptionLoading">Loading ...</option>
+                        </select></td>
+                        <td><span class="description" i18n="firmwareFlasherOnlineSelectFirmwareVersionDescription"></span></td>
+                    </tr>
+                    <tr class="option manual_baud_rate noboarder">
+                        <td><label> <input class="flash_manual_baud toggle" type="checkbox" /> <span
+                                i18n="firmwareFlasherManualBaud"></span> <select id="flash_manual_baud_rate"
+                                i18n_title="firmwareFlasherBaudRate">
+                                    <option value="115200">115200</option>
+                                    <option value="57600">57600</option>
+                                    <option value="38400" selected="selected">38400</option>
+                                    <option value="28800">28800</option>
+                                    <option value="19200">19200</option>
+                            </select>
+                        </label></td>
+                        <td><span class="description" i18n="firmwareFlasherManualBaudDescription"></span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="clear-both"></div>
+
+
+        <div class="gui_box gui_note">
+            <div class="gui_box_titlebar">
+                <div class="spacer_box_title" style="text-align: center; color: white;"
+                    i18n="firmwareFlasherRecoveryHead">
+                </div>
+            </div>
+            <div class="spacer" style="margin-bottom: 10px;">
+                <p i18n="firmwareFlasherRecoveryText"></p>
+            </div>
+        </div>
+            
+        <div class="info"><a name="progressbar"></a>
+            <progress class="progress" value="0" min="0" max="100"></progress>
+            <span class="progressLabel" i18n="firmwareFlasherLoadFirmwareFile"></span>
+        </div>
+    </div>
+    <div class="content_toolbar">
+        <div class="btn">
+            <a class="load_file" href="#" i18n="firmwareFlasherButtonLoadLocal"></a>
+        </div>
+        <div class="btn">
+            <a class="load_remote_file disabled" href="#" i18n="firmwareFlasherButtonLoadOnline"></a>
+        </div>
+        <div class="btn">
+            <a class="flash_firmware disabled" href="#progressbar" i18n="firmwareFlasherFlashFirmware"></a>
+        </div>
+    </div>
+</div>
