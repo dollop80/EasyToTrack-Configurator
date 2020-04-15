@@ -42,7 +42,7 @@ TABS.sim.initialize = function (callback) {
 
             accDistance = 0;
             radius = $("#simulator-distance").val();
-            altitude = $("#simulator-gs-home-alt").val();
+            altitude = $("#simulator-altitude").val();
             startDistance = radius; // Revisar
             simulationStarted = true;
             sendHomeTimer = new Date().getTime();
@@ -367,7 +367,6 @@ TABS.sim.initialize = function (callback) {
 
                 $("#simulator-home-lat").val(latlon[0]);
                 $("#simulator-home-lon").val(latlon[1]);
-                $("#simulator-altitude").val(latlon[2]);
 
                 home0[0] = latlon[0];
                 home0[1] = latlon[1];
