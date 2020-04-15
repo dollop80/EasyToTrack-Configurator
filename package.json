@@ -1,7 +1,7 @@
 {
   "name": "EasyToTrack-configurator",
   "description": "Crossplatform configuration tool for EasyToTrack ground system.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "bg-script": "js/eventPage.js",
   "default_locale": "en",
   "main": "main_nwjs.html",

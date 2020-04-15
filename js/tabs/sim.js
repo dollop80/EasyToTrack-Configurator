@@ -54,6 +54,7 @@ TABS.sim.initialize = function (callback) {
 
             var timerInterval = $("#simulation-frequency").val();
             var home = new LatLon(home0[0], home0[1]);
+            var homeForEight =  [home.destinationPoint(radius, 180).lat, home.destinationPoint(radius, 180).lon];
             var home1 = home.destinationPoint(radius * 2, 180);
             var home2 = home;
             var p1 = new LatLon(home.lat, home.lon);
@@ -87,6 +88,19 @@ TABS.sim.initialize = function (callback) {
                 {
                     firstRun = false;
                     home = home1;
+
+
+                    var message = {
+                        action: 'ping',
+                        home: homeForEight,
+                        type: vehicleType
+                    };
+
+                    var frame = document.getElementById('map');
+                    if(frame) {
+                        frame.contentWindow.postMessage(message, '*');
+                    }
+
                 }
                 altitude = $("#simulator-altitude").val();
 				speed = $("#simulator-speed").val() * 0.539957;
