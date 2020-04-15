@@ -16,11 +16,15 @@ var lastPoint;
 var course = 0.0;
 var coursePrev = 0;
 var speed = 0;
+var vspeed = 0;
 var mavPackCnt = 0;
 var roll = 0;
 var rollPrev = 0;
 var pitch = 0;
 var pitchPrev = 0;
+var simStartTime = 0;
+var vehicleType = 'plane';
+var armed = false;
 var protocols = {
     NMEA: 1,
     MAVLINK: 2,
@@ -44,7 +48,7 @@ function showPacket(packet) {
     
 }
 
-function buildPacket(lat, lon, altitude, distance, heading, speed, roll, pitch) {
+function buildPacket(lat, lon, altitude, distance, heading, speed, vspeed, roll, pitch) {
     var packet;
 	
     var forceError = $("#simulator-force-error").prop('checked');
@@ -59,22 +63,52 @@ function buildPacket(lat, lon, altitude, distance, heading, speed, roll, pitch) 
 		
     } else if (protocol == protocols.MAVLINK) {
 
-        packet = build_mavlink_msg_gps_raw_int(lat, lon, altitude, Speed(speed / 0.539957), forceError);
+        packet = build_mavlink_msg_gps_raw_int(lat, lon, altitude, Speed(speed / 0.539957), heading, forceError);
+        GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
+/*
+        packet = build_mavlink_msg_ahrs2(roll, pitch, heading * (Math.PI / 180.0), altitude, lat, lon);
+        GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
+
+        packet = build_mavlink_msg_altitude(altitude-10, altitude, altitude, altitude, altitude, 0);
+        GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
+*/
+        packet = build_mavlink_msg_gps_global_position_int(lat, lon, altitude, altitude, 0, 0, vspeed, heading);
         GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
 
         packet = build_mavlink_msg_attitude(roll,pitch,heading * (Math.PI / 180.0), forceError );
         GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
 
-        packet = build_mavlink_msg_sys_status($("#simulator-voltage").val(), $("#simulator-current").val(), 87);
+        packet = build_mavlink_msg_vfr_hud(speed / 0.539957 * 0.278, speed / 0.539957 * 0.278, altitude, vspeed, heading, 50);
         GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
 
-        packet = build_mavlink_msg_vfr_hud(speed / 0.539957 * 0.278, speed / 0.539957 * 0.278, altitude, 0, heading, 50);
-        GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
 
-        //if(mavPackCnt++ % (1000/$("#simulator-frequency").val()) === 0) {
-            packet = build_mavlink_msg_heartbeat();
+        var period = Math.round(1000/$("#simulation-frequency").val());
+        if((mavPackCnt++ % period) == 0) {
+            var vehicle = 0;
+            switch (vehicleType) {
+                case "copter":
+                    vehicle = 2;
+                    break;
+                case "plane":
+                    vehicle = 1;
+                    break;
+                case "rover":
+                    vehicle = 10;
+                    break;
+            }
+            packet = build_mavlink_msg_heartbeat(vehicle, armed);
             GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
-       // }
+
+            //packet = build_mavlink_msg_gps_global_origin(home0[0], home0[1], 0);
+            //GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
+
+            packet = build_mavlink_msg_sys_status($("#simulator-voltage").val(), $("#simulator-current").val(), 87);
+            GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
+
+            //packet = build_mavlink_msg_home_position(home0[0], home0[1], 0);
+            //GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
+
+        }
 
     } else if (protocol == protocols.PITLAB) {
         packet = Data2Pitlab(11, altitude, lat, lon);

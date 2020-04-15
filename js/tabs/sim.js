@@ -38,12 +38,11 @@ TABS.sim.initialize = function (callback) {
             $('.simulator-start').hide();
             $('.simulator-stop').show();
 
-            home0[0] = $("#simulator-home-lat").val();
-            home0[1] = $("#simulator-home-lon").val();
+            vehicleType = $("#vehicle-type").val();
 
             accDistance = 0;
             radius = $("#simulator-distance").val();
-            altitude = $("#simulator-altitude").val();
+            altitude = $("#simulator-gs-home-alt").val();
             startDistance = radius; // Revisar
             simulationStarted = true;
             sendHomeTimer = new Date().getTime();
@@ -70,12 +69,12 @@ TABS.sim.initialize = function (callback) {
             var swithced = false;
             var firstRun = true;
 
-
+            simStartTime = new Date().getTime();
 
             if (protocol == protocols.MFD)
                 NMEAGPGGA = setHome2MFD();
             else if($("#simulation-type").val() !== '3')
-                NMEAGPGGA = buildPacket(p1.lat, p1.lon, altitude, 0, 0, speed, roll, pitch);
+                NMEAGPGGA = buildPacket(p1.lat, p1.lon, altitude, 0, 0, speed, vspeed, roll, pitch);
 
             GTS.send(NMEAGPGGA + '\n');
             $("#simulator-log").append(NMEAGPGGA + '\n');
@@ -92,6 +91,9 @@ TABS.sim.initialize = function (callback) {
                 altitude = $("#simulator-altitude").val();
 				speed = $("#simulator-speed").val() * 0.539957;
                 if (new Date().getTime() - sendHomeTimer < 10000) {
+                    if(new Date().getTime() - sendHomeTimer > 5000)
+                        armed = true;
+
                     distance = 1.0;
                     heading = 0;
 					speed = 0.0;
@@ -185,10 +187,39 @@ TABS.sim.initialize = function (callback) {
                     course = lastPoint.bearingTo(p2);
 
                 //Very simple roll and pitch approximation. Only to get variable data for the values :)
-                roll = 5 * (coursePrev - unwrap(coursePrev * Math.PI/180.0, course * Math.PI/180.0) * 180.0/Math.PI) * (Math.PI / 180.0);
-                roll = rollPrev + 0.1 * (roll - rollPrev);
-                pitch = 5 * (altitude - altitudePrev) * (Math.PI / 180.0);
-                pitch = pitchPrev + 0.05 * (pitch - pitchPrev);
+                switch (vehicleType) {
+                    case "copter":
+                        pitch = -speed * (Math.PI / 180.0);
+                        if(pitch < -50 * (Math.PI / 180.0)) pitch = -50 * (Math.PI / 180.0);
+                        if(pitch > 50 * (Math.PI / 180.0)) pitch = 50 * (Math.PI / 180.0);
+                        pitch = pitchPrev + 0.05 * (pitch - pitchPrev);
+
+                        roll = (1000.0/$("#simulation-frequency").val()) * (coursePrev - unwrap(coursePrev * Math.PI/180.0, course * Math.PI/180.0) * 180.0/Math.PI) * (Math.PI / 180.0);
+                        if(roll < -30 * (Math.PI / 180.0)) roll = -30 * (Math.PI / 180.0);
+                        if(roll > 30 * (Math.PI / 180.0)) roll = 30 * (Math.PI / 180.0);
+                        roll = rollPrev + 0.1 * (roll - rollPrev);
+                        break;
+                    case "plane":
+                        roll = (1000.0/$("#simulation-frequency").val()) * (coursePrev - unwrap(coursePrev * Math.PI/180.0, course * Math.PI/180.0) * 180.0/Math.PI) * (Math.PI / 180.0);
+                        if(roll < -50 * (Math.PI / 180.0)) roll = -50 * (Math.PI / 180.0);
+                        if(roll > 50 * (Math.PI / 180.0)) roll = 50 * (Math.PI / 180.0);
+                        roll = rollPrev + 0.1 * (roll - rollPrev);
+
+                        pitch = (1000.0/$("#simulation-frequency").val()) * (altitude - altitudePrev) * (Math.PI / 180.0);
+                        if(pitch < -80 * (Math.PI / 180.0)) pitch = -80 * (Math.PI / 180.0);
+                        if(pitch > 80 * (Math.PI / 180.0)) pitch = 80 * (Math.PI / 180.0);
+                        pitch = pitchPrev + 0.05 * (pitch - pitchPrev);
+                        break;
+                    case "rover":
+                        roll = getRndInteger(-100, 100) / 20.0 * (Math.PI / 180.0);
+                        roll = rollPrev + 0.1 * (roll - rollPrev);
+                        pitch = getRndInteger(-100, 100) / 20.0 * (Math.PI / 180.0);
+                        pitch = pitchPrev + 0.05 * (pitch - pitchPrev);
+                        break;
+                }
+
+                vspeed = (altitude - altitudePrev) / (varTime / 1000);
+
                 coursePrev = course;
                 altitudePrev = altitude;
                 rollPrev = roll;
@@ -198,19 +229,58 @@ TABS.sim.initialize = function (callback) {
                 lastPoint.lat = p2.lat;
                 lastPoint.lon = p2.lon;
                 distance2Home = home.distanceTo(p2);
-                NMEAGPGGA = buildPacket(p2.lat, p2.lon, altitude, distance2Home, course, speed, roll, pitch);
+                NMEAGPGGA = buildPacket(p2.lat, p2.lon, altitude, distance2Home, course, speed, vspeed, roll, pitch);
 
                 //showPacket(NMEAGPGGA);
 
                 p1 = p2;
                 calculateDistanceTimer = new Date().getTime();
 
+                $("#simulator-home-lat").val(p2.lat.toFixed(8));
+                $("#simulator-home-lon").val(p2.lon.toFixed(8));
+
                 // Update Map
-                TABS.sim.updateSimMap(p2.lat, p2.lon, altitude, $("#simulator-speed").val(), distance2Home, $("#simulator-sats").val(), true, course);
+                TABS.sim.updateSimMap(p2.lat, p2.lon, altitude, $("#simulator-speed").val(), distance2Home, $("#simulator-sats").val(), true, course, home0, vehicleType);
 
             }, $("#simulation-frequency").val(), false);
 
+
+            //Simulate static position NMEA messages for serial portGs
+            GUI.interval_add("sim_interval-Gs", function () {
+                var packet;
+                if(GUI.connected_toGs) {
+                    var lat = $("#simulator-gs-home-lat").val();
+                    var lon = $("#simulator-gs-home-lon").val();
+                    var alt = $("#simulator-gs-home-alt").val();
+
+                    packet = buildGPGGA(lat, lon, alt, false);
+                    GTS.sendGs(packet + '\r\n');
+                    packet = buildGPRMC(lat, lon, alt, 0, 0, false);
+                    GTS.sendGs(packet + '\r\n');
+                    packet = buildGSA();
+                    GTS.sendGs(packet + '\r\n');
+                }
+
+            }, $("#simulation-frequency-Gs").val(), false);
+
         });
+
+
+        GUI.interval_add("sim_map_ping", function () {
+            console.log('pinging...');
+            console.log(home0);
+            var message = {
+                action: 'ping',
+                home: home0,
+                type: vehicleType
+            };
+
+            var frame = document.getElementById('map');
+            if(frame) {
+                frame.contentWindow.postMessage(message, '*');
+            }
+        }, 100, false);
+
 
 
         $(".simulator-stop").on('click', function (e) {
@@ -259,43 +329,77 @@ TABS.sim.initialize = function (callback) {
             frame.contentWindow.postMessage(message, '*');
         });
         
-		$("#simulator-home-lat").on('change',function(){
+		$("#simulator-gs-home-lat").on('change',function(){
 			TABS.sim.storeCustomLatLon();
 		});
 		
-		$("#simulator-home-lon").on('change',function(){
+		$("#simulator-gs-home-lon").on('change',function(){
 			TABS.sim.storeCustomLatLon();
 		});
-		
-		chrome.storage.local.get('userHomeLatLon', function (result) {
-			if (result.userHomeLatLon) {
-				var latlon = result.userHomeLatLon.split(',');
-				$("#simulator-home-lat").val(latlon[0]);
-				$("#simulator-home-lon").val(latlon[1]);
+
+        $("#simulator-gs-home-alt").on('change',function(){
+            TABS.sim.storeCustomLatLon();
+        });
+
+        $("#vehicle-type").on('change',function(){
+            //TABS.sim.storeCustomLatLon();
+            vehicleType = $("#vehicle-type").val();
+
+            var message = {
+                action: 'ping',
+                home: home0,
+                type: vehicleType
+            };
+
+            var frame = document.getElementById('map');
+            if(frame) {
+                frame.contentWindow.postMessage(message, '*');
+            }
+        });
+
+		chrome.storage.local.get('userHomeLatLonAlt', function (result) {
+		    console.log(result);
+			if (result.userHomeLatLonAlt) {
+				var latlon = result.userHomeLatLonAlt.split(',');
+				$("#simulator-gs-home-lat").val(latlon[0]);
+				$("#simulator-gs-home-lon").val(latlon[1]);
+                $("#simulator-gs-home-alt").val(latlon[2]);
+
+                $("#simulator-home-lat").val(latlon[0]);
+                $("#simulator-home-lon").val(latlon[1]);
+                $("#simulator-altitude").val(latlon[2]);
+
+                home0[0] = latlon[0];
+                home0[1] = latlon[1];
 			}
-		});		
+		});
+
+
 
         GUI.content_ready(callback);
         
     });
-
 };
 
 }
 
 
-TABS.sim.updateSimMap = function (lat, lon, alt, speed, distHome, sats, fix, course) {
+TABS.sim.updateSimMap = function (lat, lon, alt, speed, distHome, sats, fix, course, homePos, type) {
 
     var message = {
         action: 'center',
         lat: lat,
         lon: lon,
-        course: course * (3.14/180.0)
+        course: course * (Math.PI / 180.0),
+        home: homePos,
+        type: type
     };
 
     var frame = document.getElementById('map');
     frame.contentWindow.postMessage(message, '*');
 }
+
+
 
 TABS.sim.cleanup = function (callback) {
     if (callback)
@@ -303,8 +407,34 @@ TABS.sim.cleanup = function (callback) {
 };
 
 TABS.sim.storeCustomLatLon = function (){
-	var lat = $("#simulator-home-lat").val();
-	var lon = $("#simulator-home-lon").val();
-	var latlon = lat + ',' + lon;
-	chrome.storage.local.set({'userHomeLatLon': latlon});
+	var lat = $("#simulator-gs-home-lat").val();
+	var lon = $("#simulator-gs-home-lon").val();
+    var alt = $("#simulator-gs-home-alt").val();
+	var latlon = lat + ',' + lon + ',' + alt;
+	chrome.storage.local.set({'userHomeLatLonAlt': latlon});
 };
+
+
+window.addEventListener('message', function (e) {
+    var mainWindow = e.source;
+    var result = '';
+    try {
+        switch (e.data.action) {
+            case 'home': //return message to update home position set by clicking on map
+                $('#simulator-gs-home-lat').val(e.data.lat.toFixed(8));
+                $('#simulator-gs-home-lon').val(e.data.lon.toFixed(8));
+
+                var element = document.getElementById('simulator-gs-home-lat');
+                var event = new Event('change');
+                element.dispatchEvent(event);
+
+                break;
+            case 'pong'://pong return message from map. after this we know that map knows about sim and can send messages
+                GUI.interval_remove("sim_map_ping");
+                console.log('done...');
+                break;
+        }
+    } catch (e) {
+        console.log('message error');
+    }
+});

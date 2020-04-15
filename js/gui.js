@@ -8,6 +8,11 @@ var GUI_control = function () {
     this.connecting_to = false;
     this.connected_to = false;
 	this.connected_baud = 0;
+
+    this.connecting_toGs = false;
+    this.connected_toGs = false;
+    this.connected_baudGs = 0;
+
     this.connect_lock = false;
     this.calibrate_lock = false;
     this.simModeEnabled = false;
@@ -31,8 +36,8 @@ var GUI_control = function () {
     ];
     this.defaultAllowedFCTabsWhenConnected = [
         'configuration',
-        'settings',
-        'cli',
+        //'settings',
+        //'cli',
         'sim'
 
     ];
@@ -252,7 +257,7 @@ GUI_control.prototype.tab_switch_cleanup = function (callback) {
 GUI_control.prototype.switchery = function () {
     $('.togglesmall').each(function (index, elem) {
         var switchery = new Switchery(elem, {
-            color: '#EF7F1A',
+            color: '#59aa29',
             secondaryColor: '#c4c4c4',
             size: 'small'
         });
@@ -264,7 +269,7 @@ GUI_control.prototype.switchery = function () {
 
     $('.toggle').each(function (index, elem) {
         var switchery = new Switchery(elem, {
-            color: '#EF7F1A',
+            color: '#59aa29',
             secondaryColor: '#c4c4c4'
         });
 

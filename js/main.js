@@ -26,6 +26,9 @@ function startProcess() {
     $('#logo .version').text(getManifestVersion());
     updateStatusBarVersion();
     updateTopBarVersion();
+	
+	var port_pickerGs = $('#portsinputGs');
+	port_pickerGs.hide();
 
     // notification messages for various operating systems
     switch (GUI.operating_system) {
@@ -345,20 +348,30 @@ function startProcess() {
     });
 
     $("#simModeSwitch").on('click', function () {
-        /*
+        
 		GUI.simModeEnabled = $(this).is(':checked');
         console.log("Sim Mode: " + GUI.simModeEnabled);
-		*/
-		GUI.simModeEnabled = true;
+		
+		if(GUI.simModeEnabled)
+		{
+			var port_pickerGs = $('#portsinputGs');
+			port_pickerGs.show();
+		}
+		else
+		{
+			var port_pickerGs = $('#portsinputGs');
+			port_pickerGs.hide();
+		}
+		//GUI.simModeEnabled = true;
     });
 	
-	GUI.simModeEnabled = true;
+	//GUI.simModeEnabled = true;
 }
 
 function checkForConfiguratorUpdates() {
-   // var releaseChecker = new ReleaseChecker('configurator', 'https://api.github.com/repos/raul-ortega/u360gts-configurator/releases');
+     var releaseChecker = new ReleaseChecker('configurator', 'https://api.github.com/repos/dollop80/EasyToTrack-Configurator/releases');
 
-    //releaseChecker.loadReleaseData(notifyOutdatedVersion);
+    releaseChecker.loadReleaseData(notifyOutdatedVersion);
 }
 
 function notifyOutdatedVersion(releaseData) {

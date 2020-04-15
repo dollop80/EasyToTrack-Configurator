@@ -344,6 +344,9 @@
     "communitySlackSupport": {
         "message": "Slack Support Live Chat"
     },
+    "portDescriptionText": {
+        "message": "Port for GS position NMEA output (optional)"
+    },
     "configHelp2": {
         "message": "Arbitrary board rotation in degrees, to allow mounting it sideways / upside down / rotated etc. When running external sensors, use the sensor alignments (Gyro, Acc, Mag) to define sensor position independent from board orientation. "
     },
@@ -3458,7 +3461,7 @@
         "message": "You need to \u003Cstrong>upgrade\u003C/strong> your firmware before you can use the $1 tab."
     },
     "tabSwitchDeniedOnSim": {
-        "message": "Disable on Simulator Mode."
+        "message": "Disable in Simulator Mode."
     },
     "tabSwitchWaitForOperation": {
         "message": "You \u003Cspan class=\"message-negative\">can't\u003C/span> do this right now, please wait for current operation to finish ..."
@@ -3593,6 +3596,18 @@
 	"simSelectProtocol": {
         "message": "Select Protocol"
     },
+    "vehicleType": {
+        "message": "Vehicle type"
+    },
+    "vehicleTypeCopter": {
+        "message": "Copter"
+    },
+    "vehicleTypePlane": {
+        "message": "Plane"
+    },
+    "vehicleTypeRover": {
+        "message": "Rover"
+    },
     "simType": {
         "message": "Trajectory type"
     },
@@ -3657,7 +3672,19 @@
         "message": "Select Fix Type"
     },
     "simNotAvailable": {
-        "message": "You must to be connected on \u003Cb>Simulator Mode\u003C/b> for use this tab."
+        "message": "You must to be connected in \u003Cb>Simulator Mode\u003C/b> to use this tab."
+    },
+    "simBaseGps": {
+        "message": "Tracker Position (NMEA output)"
+    },
+    "simGsLatitude": {
+        "message": "Tracker Latitude"
+    },
+    "simGsLongitude": {
+        "message": "Tracker Longitude"
+    },
+    "simGsAltitude": {
+        "message": "Tracker Altitude"
     },
     "tabSettings": {
         "message": "Settings"
@@ -3739,6 +3766,9 @@
     },
     "portsSoftSerial": {
         "message": "Ports (SOFTSERIAL)"
+    },
+    "portsDisabled": {
+        "message": "Disable"
     },
     "configurationTelemetry": {
         "message": "Telemetry"

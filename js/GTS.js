@@ -126,6 +126,17 @@ var GTS = {
         serial.send(bufferOut, callback);
 
     },
+    sendGs: function (line, callback, showOnConsole) {
+
+        var bufferOut = new ArrayBuffer(line.length);
+        var bufView = new Uint8Array(bufferOut);
+
+        for (var c_key = 0; c_key < line.length; c_key++) {
+            bufView[c_key] = line.charCodeAt(c_key);
+        }
+
+        serialGs.send(bufferOut, callback);
+    },
     set: function (param, value) {
 
         var command = 'set ' + param + ' = ' + value + '\n';

@@ -31,6 +31,38 @@ function initializeSerialBackend() {
         GUI.updateManualPortVisibility();
     });
 
+
+
+
+    GUI.updateManualPortGsVisibility = function () {
+        var selected_port = $('div#port-picker-Gs #portGs option:selected');
+        if (selected_port.data().isManual) {
+            $('#port-override-option-Gs').show();
+        } else {
+            $('#port-override-option-Gs').hide();
+        }
+    };
+
+    GUI.updateManualPortGsVisibility();
+
+    $('#port-override-Gs').change(function () {
+        chrome.storage.local.set({'portOverrideGs': $('#port-override-Gs').val()});
+    });
+
+    chrome.storage.local.get('portOverrideGs', function (data) {
+        $('#port-override-Gs').val(data.portOverrideGs);
+    });
+
+    $('div#port-picker-Gs #portGs').change(function (target) {
+        GUI.updateManualPortGsVisibility();
+    });
+
+
+
+
+
+
+
     $('div.connect_controls a.connect').click(function () {
         if (GUI.connect_lock != true) { // GUI control overrides the user control
 
@@ -45,6 +77,14 @@ function initializeSerialBackend() {
             var selected_port = $('div#port-picker #port option:selected').data().isManual ?
                     $('#port-override').val() :
                     String($('div#port-picker #port').val());
+
+            var selected_baudGs = parseInt($('div#port-picker-Gs #baudGs').val());
+            var selected_portGs = $('div#port-picker-Gs #portGs option:selected').data().isDisabled ?
+                null : String($('div#port-picker-Gs #portGs').val());
+            console.log('selected_baudGs: '+selected_baudGs);
+            console.log('selected_portGs: '+selected_portGs);
+
+
             if (selected_port === 'DFU') {
                 GUI.log(i18n.getMessage('dfu_connect_message'));
             } else if (selected_port != '0') {
@@ -57,6 +97,17 @@ function initializeSerialBackend() {
                     $('div.connect_controls a.connect_state').text(i18n.getMessage('connecting'));
 
                     serial.connect(selected_port, {bitrate: selected_baud}, onOpen);
+
+                    if(selected_portGs != null && GUI.simModeEnabled)
+                    {
+                        console.log('Connecting GS to: ' + selected_portGs);
+                        GUI.connecting_toGs = selected_portGs;
+
+                        // lock port select & baud while we are connecting / connected
+                        $('div#port-picker-Gs #portGs, div#port-picker-Gs #baudGs, div#port-picker-Gs #delay').prop('disabled', true);
+
+                        serialGs.connect(selected_portGs, {bitrate: selected_baudGs}, onOpenGs);
+                    }
 
                     toggleStatus();
                 } else {
@@ -131,6 +182,7 @@ function finishClose(finishedCallback) {
     var wasConnected = CONFIGURATOR.connectionValid;
 
     serial.disconnect(onClosed);
+    serialGs.disconnect(onClosedGs);
 
     //MSP.disconnect_cleanup();
     PortUsage.reset();
@@ -217,97 +269,6 @@ function onOpen(openInfo) {
         // OJO ESTO NO VA AQUÍ
         finishOpen();
 
-
-//        MSP.listen(update_packet_error);
-//        mspHelper = new MspHelper();
-//        MSP.listen(mspHelper.process_data.bind(mspHelper));
-
-        // request configuration data SOLICITAMOS CONFIGURACION RRR
-
-//        MSP.send_message(MSPCodes.MSP_API_VERSION, false, false, function () {
-//            GUI.log(i18n.getMessage('apiVersionReceived', [CONFIG.apiVersion]));
-//
-//            if (semver.gte(CONFIG.apiVersion, CONFIGURATOR.apiVersionAccepted)) {
-//
-//                MSP.send_message(MSPCodes.MSP_FC_VARIANT, false, false, function () {
-//                    if (CONFIG.flightControllerIdentifier === 'BTFL' || (CONFIG.flightControllerIdentifier === 'CLFL')) {
-//                        MSP.send_message(MSPCodes.MSP_FC_VERSION, false, false, function () {
-//
-//                            googleAnalytics.sendEvent('Firmware', 'Variant', CONFIG.flightControllerIdentifier + ',' + CONFIG.flightControllerVersion);
-//
-//                            GUI.log(i18n.getMessage('fcInfoReceived', [CONFIG.flightControllerIdentifier, CONFIG.flightControllerVersion]));
-//                            updateStatusBarVersion(CONFIG.flightControllerVersion, CONFIG.flightControllerIdentifier);
-//                            updateTopBarVersion(CONFIG.flightControllerVersion, CONFIG.flightControllerIdentifier);
-//
-//                            if ((CONFIG.flightControllerIdentifier === 'CLFL' && semver.lt(CONFIG.apiVersion, '1.34.0')) ||
-//                                (CONFIG.flightControllerIdentifier === 'BTFL' && semver.lt(CONFIG.apiVersion, '1.20.0'))) {
-//                                
-//                                var dialog = $('.dialogConnectWarning')[0];
-//
-//                                $('.dialogConnectWarning-content').html(i18n.getMessage('firmwareUpgradeRequired'));
-//
-//                                $('.dialogConnectWarning-closebtn').click(function() {
-//                                    dialog.close();
-//                                });
-//
-//                                dialog.showModal();
-//
-//                                connectCli();
-//                            } else {
-//                            
-//                                MSP.send_message(MSPCodes.MSP_BUILD_INFO, false, false, function () {
-//    
-//                                    googleAnalytics.sendEvent('Firmware', 'Using', CONFIG.buildInfo);
-//                                    GUI.log(i18n.getMessage('buildInfoReceived', [CONFIG.buildInfo]));
-//
-//                                    updateStatusBarVersion(CONFIG.flightControllerVersion, CONFIG.flightControllerIdentifier, CONFIG.boardIdentifier);
-//                                    updateTopBarVersion(CONFIG.flightControllerVersion, CONFIG.flightControllerIdentifier, CONFIG.boardIdentifier);
-//
-//                                    MSP.send_message(MSPCodes.MSP_BOARD_INFO, false, false, function () {
-//    
-//                                        googleAnalytics.sendEvent('Board', 'Using', CONFIG.boardIdentifier + ',' + CONFIG.boardVersion);
-//                                        GUI.log(i18n.getMessage('boardInfoReceived', [CONFIG.boardIdentifier, CONFIG.boardVersion]));
-//    
-//                                        MSP.send_message(MSPCodes.MSP_UID, false, false, function () {
-//                                            GUI.log(i18n.getMessage('uniqueDeviceIdReceived', [CONFIG.uid[0].toString(16) + CONFIG.uid[1].toString(16) + CONFIG.uid[2].toString(16)]));
-//
-//                                            CONFIG.armingDisabled = false;
-//                                            mspHelper.setArmingEnabled(false, false, finishOpen);
-//                                            
-//                                            finishOpen();
-//                                        });
-//                                    });
-//                                });
-//                            }
-//                        });
-//                    } else {
-//                        var dialog = $('.dialogConnectWarning')[0];
-//
-//                        $('.dialogConnectWarning-content').html(i18n.getMessage('firmwareTypeNotSupported'));
-//
-//                        $('.dialogConnectWarning-closebtn').click(function() {
-//                            dialog.close();
-//                        });
-//
-//                        dialog.showModal();
-//
-//                        connectCli();
-//                    }
-//                });
-//            } else {
-//                var dialog = $('.dialogConnectWarning')[0];
-//
-//                $('.dialogConnectWarning-content').html(i18n.getMessage('firmwareVersionNotSupported', [CONFIGURATOR.apiVersionAccepted]));
-//
-//                $('.dialogConnectWarning-closebtn').click(function() {
-//                    dialog.close();
-//                });
-//
-//                dialog.showModal();
-//
-//                connectCli();
-//            }
-//        });
     } else {
         console.log('Failed to open serial port');
         GUI.log(i18n.getMessage('serialPortOpenFail'));
@@ -317,6 +278,73 @@ function onOpen(openInfo) {
 
         // unlock port select & baud
         $('div#port-picker #port, div#port-picker #baud, div#port-picker #delay').prop('disabled', false);
+
+        // reset data
+        $('div#connectbutton a.connect').data("clicks", false);
+    }
+}
+
+
+function onOpenGs(openInfo) {
+    if (openInfo) {
+        // update connected_to
+        GUI.connected_toGs = GUI.connecting_toGs;
+        GUI.connected_baudGs =  $('div#port-picker-Gs #baudGs').val();
+
+        // reset connecting_to
+        GUI.connecting_toGs = false;
+
+        GUI.log(i18n.getMessage('serialPortGsOpened', [openInfo.connectionId]));
+
+        // save selected port with chrome.storage if the port differs
+        chrome.storage.local.get('last_used_portGs', function (result) {
+            if (result.last_used_portGs) {
+                if (result.last_used_portGs != GUI.connected_toGs) {
+                    // last used port doesn't match the one found in local db, we will store the new one
+                    chrome.storage.local.set({'last_used_portGs': GUI.connected_toGs});
+                }
+            } else {
+                // variable isn't stored yet, saving
+                chrome.storage.local.set({'last_used_portGs': GUI.connected_toGs});
+            }
+        });
+
+        chrome.storage.local.get('last_used_baudGs', function (result) {
+            if (result.last_used_baudGs) {
+                if (result.last_used_baudGs != GUI.connected_baudGs) {
+                    // last used baud doesn't match the one found in local db, we will store the new one
+                    chrome.storage.local.set({'last_used_baudGs': GUI.connected_baudGs});
+                }
+            } else {
+                // variable isn't stored yet, saving
+                chrome.storage.local.set({'last_used_baudGs': GUI.connected_baudGs});
+            }
+        });
+
+        //serialGs.onReceive.addListener(read_serial); //not needed
+
+        // disconnect after 10 seconds with error if we don't get IDENT data
+        GUI.timeout_add('connecting', function () {
+            if (!CONFIGURATOR.connectionValid) {
+                GUI.log(i18n.getMessage('noConfigurationReceived'));
+
+                $('div.connect_controls a.connect').click(); // disconnect
+            }
+        }, 10000);
+
+        //FC.resetState();
+        // OJO ESTO NO VA AQUÍ
+        //finishOpen();
+
+    } else {
+        console.log('Failed to open serial port for GS');
+        GUI.log(i18n.getMessage('serialPortOpenFail'));
+
+        $('div#connectbutton a.connect_state').text(i18n.getMessage('connect'));
+        $('div#connectbutton a.connect').removeClass('active');
+
+        // unlock port select & baud
+        $('div#port-picker-Gs #portGs, div#port-picker-Gs #baudGs, div#port-picker-Gs #delayGs').prop('disabled', false);
 
         // reset data
         $('div#connectbutton a.connect').data("clicks", false);
@@ -390,6 +418,9 @@ function onConnect() {
 
     var port_picker = $('#portsinput');
     port_picker.hide();
+	
+	var port_pickerGs = $('#portsinputGs');
+    port_pickerGs.hide();
 
     //var dataflash = $('#dataflash_wrapper_global');
     //dataflash.show();
@@ -430,6 +461,17 @@ function onClosed(result) {
     CONFIGURATOR.connectionValid = false;
     CONFIGURATOR.cliValid = false;
     CONFIGURATOR.cliActive = false;
+}
+
+function onClosedGs(result) {
+    if (result) { // All went as expected
+        GUI.log(i18n.getMessage('serialPortClosedOk'));
+    } else { // Something went wrong
+        GUI.log(i18n.getMessage('serialPortClosedFail'));
+    }
+
+    var port_pickerGs = $('#portsinputGs');
+    port_pickerGs.hide();
 }
 
 function read_serial(info) {

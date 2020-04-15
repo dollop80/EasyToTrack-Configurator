@@ -239,23 +239,46 @@ TABS.firmware_flasher_avr.initialize = function (callback) {
 
 
         function flashAVR () {
-            GUI.log("starting");
 
-            let avrgirl = new AvrgirlArduino({
-                board: 'uno',
-                debug: true
-            });
+            console.debug('starting programmer');
+            var Stk500 = require('stk500');
+            var stk500 = new Stk500();
+
+            var port = String($('div#port-picker #port').val()),
+                baud;
+            baud = 38400;
+
+            var MemoryStream = require('memorystream');
+            var memStream = new MemoryStream('ffff');
+
+            serial.connect(port, {bitrate: baud, parityBit: 'no', stopBits: 'one'}, function (openInfo) {
+                if (openInfo) {
+                    // we are connected, disabling connect button in the UI
+                    GUI.connect_lock = true;
+                    console.debug('serialPortOpenSuceess');
+
+                    var board = {
+                        signature: new Buffer([0x1e, 0x95, 0x0f]),
+                        pageSize: 128,
+                        timeout: 400
+                    };
+                    var hex = [1,2,2,2];
+                    stk500.bootload(memStream, hex, board, function(error){
+
+                        serial.close(function (error) {
+                            console.log(error);
+                        });
+
+                        done(error);
+                    });
 
 
-            avrgirl.flash('./js/libraries/avrgirl/junk/hex/uno/Blink.cpp.hex', function (error) {
-                if (error) {
-                    console.error(error);
-                    GUI.log(error);
                 } else {
-                    console.info('done.');
-                    GUI.log(done);
+                    console.debug('serialPortOpenFail');
+                    GUI.log(i18n.getMessage('serialPortOpenFail'));
                 }
             });
+
 
 
         }

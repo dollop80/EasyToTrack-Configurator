@@ -35,8 +35,8 @@
         <script type="text/javascript" src="./js/libraries/three/CanvasRenderer.js"></script>
         <!--<script type="text/javascript" src="./js/libraries/openlayer/build/ol.js"></script>-->
 
-		<script type="text/javascript" src="./js/libraries/avrgirl/dist/avrgirl-arduino.global.js">charset="UTF-8"</script>
-		
+		<!--script type="text/javascript" src="./js/libraries/avrgirl/dist/avrgirl-arduino.global.js"></script> -->
+
 
 		
 		
@@ -51,6 +51,7 @@
         <script type="text/javascript" src="./js/port_handler.js"></script>
         <script type="text/javascript" src="./js/port_usage.js"></script>
         <script type="text/javascript" src="./js/serial.js"></script>
+        <script type="text/javascript" src="./js/serialGs.js"></script>
         <script type="text/javascript" src="./js/mfd-simulator.js"></script>
         <script type="text/javascript" src="./js/latlon-spherical.js"></script>
         <script type="text/javascript" src="./js/pitlab-simulator.js"></script>
@@ -116,19 +117,12 @@
                         </div>
                         <div class="dropdown dropdown-dark">
                             <select class="dropdown-select" id="baud" i18n_title="firmwareFlasherBaudRate">
-                                <option value="1000000">1000000</option>
-                                <option value="500000">500000</option>
                                 <option value="250000">250000</option>
                                 <option value="115200" selected="selected">115200</option>
                                 <option value="57600">57600</option>
                                 <option value="38400">38400</option>
-                                <option value="28800">28800</option>
                                 <option value="19200">19200</option>
-                                <option value="14400">14400</option>
                                 <option value="9600">9600</option>
-                                <option value="4800">4800</option>
-                                <option value="2400">2400</option>
-                                <option value="1200">1200</option>
                             </select>
                         </div>
                         <div id="port-override-option">
@@ -140,6 +134,40 @@
                             <label><input id="simModeSwitch" class="togglesmall" type="checkbox"/><span class="sim_mode" i18n="simMode"></span></label>
                         </div>
                     </div>
+                </div>
+
+                <div id="port-picker-Gs">
+                    <div id="portsinputGs">
+                        <div class="dropdown dropdown-dark">
+                            <select class="dropdown-select" id="portGs" i18n_title="firmwareFlasherManualPort">
+                                <option value="manual">Manual</option>
+                                <!-- port list gets generated here -->
+                            </select>
+                        </div>
+                        <div class="dropdown dropdown-dark">
+                            <select class="dropdown-select" id="baudGs" i18n_title="firmwareFlasherBaudRate">
+                                <option value="115200" selected="selected">115200</option>
+                                <option value="57600">57600</option>
+                                <option value="38400">38400</option>
+                                <option value="9600">9600</option>
+                            </select>
+                        </div>
+                        <div id="port-text-Gs">
+                            <label for="port-text-Gs"><span i18n="portDescriptionText">Port for GS position (NMEA)</span> </label>
+                        </div>
+                        <div id="port-override-option-Gs">
+                            <label for="port-override-Gs"><span i18n="portOverrideText">Port:</span> <input id="port-override-Gs" type="text"
+                                                                                                         value="/dev/rfcomm1"/></label>
+                        </div>
+                    </div>
+
+
+
+
+
+
+
+
                 </div>
                 <div class="header-wrapper">
                     <div id="dataflash_wrapper_global">

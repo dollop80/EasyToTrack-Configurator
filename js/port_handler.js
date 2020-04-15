@@ -172,6 +172,15 @@ PortHandler.update_port_select = function (ports) {
     }
 
     $('div#port-picker #port').append($("<option/>", {value: 'manual', text: i18n.getMessage('portsSelectManual'), data: {isManual: true}}));
+
+
+    $('div#port-picker-Gs #portGs').html(''); // drop previous one
+
+    for (var i = 0; i < ports.length; i++) {
+        $('div#port-picker-Gs #portGs').append($("<option/>", {value: ports[i], text: ports[i], data: {isDisabled: false}}));
+    }
+    $('div#port-picker-Gs #portGs').append($("<option/>", {value: 'Disabled', text: i18n.getMessage('portsDisabled'), data: {isDisabled: true}}));
+    $('div#port-picker-Gs #portGs').val('Disabled');
 };
 
 PortHandler.port_detected = function(name, code, timeout, ignore_timeout) {

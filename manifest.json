@@ -32,7 +32,7 @@
    "version": "1.0.0",
    "webview": {
       "partitions": [ {
-         "accessible_resources": [ "tabs/map.html", "/js/tabs/map.js", "/images/icons/tracker-map-icon.png", "/js/libraries/openlayer/css/ol.css", "/js/libraries/openlayer/build/ol.js", "/js/libraries/openlayer/build/ol.js.map" ],
+         "accessible_resources": [ "tabs/map.html", "/js/tabs/map.js", "/images/icons/tracker-map-icon.png", "/images/icons/tracker-map-copter.png", "/images/icons/tracker-map-rover.png", "/images/icons/tracker-map-home.png", "/js/libraries/openlayer/css/ol.css", "/js/libraries/openlayer/build/ol.js", "/js/libraries/openlayer/build/ol.js.map" ],
          "name": "map"
       } ]
    }

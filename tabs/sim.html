@@ -39,7 +39,66 @@
                 </div>
 
 
+
+                <div class="config-section gui_box grey" style="width: 30%">
+                    <div class="gui_box_titlebar" >
+                        <div class="spacer_box_title" i18n="simBaseGps"></div>
+                    </div>
+                    <div class="spacer_box">
+
+                        <div id="the whole thing" style="height:100%; width:100%; position: relative; overflow: hidden;">
+
+                            <div class="select">
+                                <label for="simulation-frequency-Gs" style="left:0;" i18n="pidTuningFilterFrequency">Frequency </label>
+                                <select name="simulation-frequency-Gs" id="simulation-frequency-Gs" style="float:right; width: 150px;">
+                                    <option value='' i18n="simSelectFrequency"></option>
+                                    <option value='1000'>1 Hz (1000 ms)</option>
+                                    <option value='500'>2 Hz (500 ms)</option>
+                                    <option value='333'>3 Hz (333 ms)</option>
+                                    <option value='250'>4 Hz (250 ms)</option>
+                                    <option value='200' selected='selected'>5 Hz (200 ms)</option>
+                                    <option value='166'>6 Hz (166 ms)</option>
+                                    <option value='142'>7 Hz (142 ms)</option>
+                                    <option value='125'>8 Hz (125 ms)</option>
+                                    <option value='111'>9 Hz (111 ms)</option>
+                                    <option value='100'>10 Hz (100 ms)</option>
+                                </select>
+
+                            </div>
+
+                            <div class="number" >
+                                <label for="simulator-gs-home-lat" style="left:0;" i18n="simGsLatitude"></label>
+
+                                <div style="left:0;float:right;">
+                                    <input type="text" id="simulator-gs-home-lat" name="simulator-gs-home-lat" value="55.593774" style="width:100px;margin-right: 0;" />
+                                </div>
+                            </div>
+
+                            <div class="number" >
+                                <label for="simulator-gs-home-lon" style="left:0;" i18n="simGsLongitude"></label>
+
+                                <div style="left:0;float:right;">
+                                    <input type="text" id="simulator-gs-home-lon" name="simulator-gs-home-lon" value="38.220622" style="width:100px;margin-right: 0;" />
+                                </div>
+                            </div>
+
+                            <div class="number" >
+                                <label for="simulator-gs-home-alt" style="left:0;" i18n="simGsAltitude"></label>
+
+                                <div style="left:0;float:right;">
+                                    <input type="number" id="simulator-gs-home-alt" name="simulator-gs-home-alt" min="0", value="20" style="width:100px;margin-right: 0;" />
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+
+
             </div>
+
 
             <div class="cf_column fourth">
 
@@ -48,6 +107,20 @@
                         <div class="spacer_box_title" i18n="settings"></div>
                     </div>
                     <div class="spacer_box">
+
+
+                        <div class="select">
+
+                            <label for="vehicle-type" style="left:0;" i18n="vehicleType"></label>
+
+                            <select name="vehicle-type" id="vehicle-type" style="float:right; width: 150px;">
+                                <option value='plane' i18n="vehicleTypePlane"></option>
+                                <option value='copter' i18n="vehicleTypeCopter"></option>
+                                <option value='rover' i18n="vehicleTypeRover"></option>
+                            </select>
+
+                        </div>
+
 
                         <div class="select">
 
@@ -135,7 +208,7 @@
                             <label for="simulator-distance" style="left:0;" i18n="simRadius"></label>
 
                             <div style="left:0;float:right;">
-                                <input type="number" id="simulator-distance" name="simulator-distance" min="0" max="1000" value="45" style="margin-right: 0;" />
+                                <input type="number" id="simulator-distance" name="simulator-distance" min="1" max="1000" value="45" style="margin-right: 0;" />
                             </div>
                         </div>
 
@@ -225,9 +298,6 @@
 
                     </div>
                 </div>
-
-
-
 
 
 
