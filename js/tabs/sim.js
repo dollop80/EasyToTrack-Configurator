@@ -189,18 +189,18 @@ TABS.sim.initialize = function (callback) {
                 //Very simple roll and pitch approximation. Only to get variable data for the values :)
                 switch (vehicleType) {
                     case "copter":
+                        roll = -(1000.0/$("#simulation-frequency").val()) * (coursePrev - unwrap(coursePrev * Math.PI/180.0, course * Math.PI/180.0) * 180.0/Math.PI) * (Math.PI / 180.0);
+                        if(roll < -30 * (Math.PI / 180.0)) roll = -30 * (Math.PI / 180.0);
+                        if(roll > 30 * (Math.PI / 180.0)) roll = 30 * (Math.PI / 180.0);
+                        roll = rollPrev + 0.1 * (roll - rollPrev);
+
                         pitch = -speed * (Math.PI / 180.0);
                         if(pitch < -50 * (Math.PI / 180.0)) pitch = -50 * (Math.PI / 180.0);
                         if(pitch > 50 * (Math.PI / 180.0)) pitch = 50 * (Math.PI / 180.0);
                         pitch = pitchPrev + 0.05 * (pitch - pitchPrev);
-
-                        roll = (1000.0/$("#simulation-frequency").val()) * (coursePrev - unwrap(coursePrev * Math.PI/180.0, course * Math.PI/180.0) * 180.0/Math.PI) * (Math.PI / 180.0);
-                        if(roll < -30 * (Math.PI / 180.0)) roll = -30 * (Math.PI / 180.0);
-                        if(roll > 30 * (Math.PI / 180.0)) roll = 30 * (Math.PI / 180.0);
-                        roll = rollPrev + 0.1 * (roll - rollPrev);
                         break;
                     case "plane":
-                        roll = (1000.0/$("#simulation-frequency").val()) * (coursePrev - unwrap(coursePrev * Math.PI/180.0, course * Math.PI/180.0) * 180.0/Math.PI) * (Math.PI / 180.0);
+                        roll = -(1000.0/$("#simulation-frequency").val()) * (coursePrev - unwrap(coursePrev * Math.PI/180.0, course * Math.PI/180.0) * 180.0/Math.PI) * (Math.PI / 180.0);
                         if(roll < -50 * (Math.PI / 180.0)) roll = -50 * (Math.PI / 180.0);
                         if(roll > 50 * (Math.PI / 180.0)) roll = 50 * (Math.PI / 180.0);
                         roll = rollPrev + 0.1 * (roll - rollPrev);

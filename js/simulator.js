@@ -29,7 +29,8 @@ var protocols = {
     NMEA: 1,
     MAVLINK: 2,
     PITLAB: 3,
-    MFD: 4
+    MFD: 4,
+    MSP: 5
 };
 
 function Speed(value) {
@@ -114,10 +115,20 @@ function buildPacket(lat, lon, altitude, distance, heading, speed, vspeed, roll,
         packet = Data2Pitlab(11, altitude, lat, lon);
         if (!debugEnabled)
             GTS.send(packet + '\n');
-    } else if (protocol === protocols.MFD) {
+    } else if (protocol == protocols.MFD) {
         packet = Data2MFD(distance, altitude, heading, forceError);
         if (!debugEnabled)
             GTS.send(packet + '\n');
+    } else if (protocol == protocols.MSP) {
+        packet = build_msp_attitude(roll, pitch, heading);
+        GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
+
+        packet = build_msp_analog($("#simulator-voltage").val(), 100, $("#simulator-rssi").val(), $("#simulator-current").val());
+        GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
+
+        packet = build_msp_raw_gps($("#simulation-fixtype").val(), $("#simulation-sats").val(), lat, lon, altitude, speed / 0.539957 * 0.278, heading);
+        GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
+
     }
     return packet;
 }
