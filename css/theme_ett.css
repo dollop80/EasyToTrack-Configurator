@@ -282,6 +282,14 @@ li.active .ic_welcome {
     background-color: #59aa29;
 }
 
+.tab-firmware_flasher_avr .info .progress.valid::-webkit-progress-bar {
+    background-color: #59aa29;
+}
+
+.tab-firmware_flasher_avr .info .progress.valid::-webkit-progress-value {
+    background-color: #59aa29;
+}
+
 progress[value]::-webkit-progress-value {
     background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, .15), rgba(0, 0, 0, .15)),
         -webkit-linear-gradient(left, #59aa29, #59aa29);

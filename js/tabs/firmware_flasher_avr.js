@@ -241,43 +241,13 @@ TABS.firmware_flasher_avr.initialize = function (callback) {
         function flashAVR () {
 
             console.debug('starting programmer');
-            var Stk500 = require('stk500');
-            var stk500 = new Stk500();
+            //STK500.initialize();
 
             var port = String($('div#port-picker #port').val()),
                 baud;
-            baud = 38400;
-
-            var MemoryStream = require('memorystream');
-            var memStream = new MemoryStream('ffff');
-
-            serial.connect(port, {bitrate: baud, parityBit: 'no', stopBits: 'one'}, function (openInfo) {
-                if (openInfo) {
-                    // we are connected, disabling connect button in the UI
-                    GUI.connect_lock = true;
-                    console.debug('serialPortOpenSuceess');
-
-                    var board = {
-                        signature: new Buffer([0x1e, 0x95, 0x0f]),
-                        pageSize: 128,
-                        timeout: 400
-                    };
-                    var hex = [1,2,2,2];
-                    stk500.bootload(memStream, hex, board, function(error){
-
-                        serial.close(function (error) {
-                            console.log(error);
-                        });
-
-                        done(error);
-                    });
-
-
-                } else {
-                    console.debug('serialPortOpenFail');
-                    GUI.log(i18n.getMessage('serialPortOpenFail'));
-                }
-            });
+            baud = 57600;//115200;
+            var options = null;
+            STK500.connect(port, baud, parsed_hex, options);
 
 
 
@@ -478,7 +448,7 @@ TABS.firmware_flasher_avr.initialize = function (callback) {
                             if (String($('div#port-picker #port').val()) != '0') {
                                 var port = String($('div#port-picker #port').val()),
                                     baud;
-                                baud = 115200;
+                                baud = 57600;//115200;
 
                                 if ($('input.updating').is(':checked')) {
                                     options.no_reboot = true;
@@ -491,7 +461,7 @@ TABS.firmware_flasher_avr.initialize = function (callback) {
                                 }
 
 
-                                STM32.connect(port, baud, parsed_hex, options);
+                                STK500.connect(port, baud, parsed_hex, options);
                             } else {
                                 console.log('Please select valid serial port');
                                 GUI.log(i18n.getMessage('firmwareFlasherNoValidPort'));
