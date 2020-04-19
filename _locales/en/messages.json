@@ -1245,10 +1245,10 @@
         "message": "Select your board to see available online firmware releases - Select the correct firmware appropriate for your board."
     },
     "firmwareFlasherOnlineSelectBuildType": {
-        "message": "Select build type to see available boards."
+        "message": "Select device type to see available firmware releases."
     },
     "firmwareFlasherOnlineSelectFirmwareVersionDescription": {
-        "message": "Select firmware version for your board."
+        "message": "Select firmware version for your device."
     },
     "firmwareFlasherOptionLabelBuildTypeAKK3_3": {
         "message": "3.3 AKK & RDQ VTX Patch"
@@ -3325,10 +3325,25 @@
     "stm32ContactingBootloaderFailed": {
         "message": "Communication with bootloader failed"
     },
+    "stk500ContactingBootloader": {
+        "message": "Contacting bootloader ..."
+    },
+    "stk500SignatureNotValid": {
+        "message": "Chip signature not valid. Check that you are programming a correct device"
+    },
+    "stk500ContactingBootloaderFailed": {
+        "message": "Communication with bootloader failed"
+    },
     "stm32Erase": {
         "message": "Erasing ..."
     },
     "stm32Flashing": {
+        "message": "Flashing ..."
+    },
+    "stk500Erase": {
+        "message": "Erasing ..."
+    },
+    "stk500Flashing": {
         "message": "Flashing ..."
     },
     "stm32GlobalErase": {
@@ -3352,6 +3367,12 @@
     "stm32ProgrammingSuccessful": {
         "message": "Programming: SUCCESSFUL"
     },
+    "stk500ProgrammingFailed": {
+        "message": "Programming: FAILED"
+    },
+    "stk500ProgrammingSuccessful": {
+        "message": "Programming: SUCCESSFUL"
+    },
     "stm32ReadProtected": {
         "message": "Board seems read protected. Unprotecting. Do not disconnect/unplug!"
     },
@@ -3360,6 +3381,9 @@
     },
     "stm32TimedOut": {
         "message": "STM32 - timed out, programming: FAILED"
+    },
+    "stk500TimedOut": {
+        "message": "STK500 - timed out, programming: FAILED"
     },
     "stm32UnprotectFailed": {
         "message": "Failed to unprotect board"
@@ -3377,6 +3401,9 @@
         "message": "USB DFU not found"
     },
     "stm32Verifying": {
+        "message": "Verifying ..."
+    },
+    "stk500Verifying": {
         "message": "Verifying ..."
     },
     "stm32WrongResponse": {

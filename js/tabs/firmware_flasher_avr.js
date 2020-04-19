@@ -2,7 +2,7 @@
 
 TABS.firmware_flasher_avr = {
     releases: null,
-    releaseChecker: new ReleaseChecker('firmware', 'https://api.github.com/repos/raul-ortega/u360gts/releases')
+    releaseChecker: new ReleaseChecker('firmware', 'https://api.github.com/repos/dollop80/EasyToTrack/releases')
 };
 
 
@@ -69,7 +69,7 @@ TABS.firmware_flasher_avr.initialize = function (callback) {
                     $('div.release_info .status').text(summary.status);
                     $('div.release_info .file').text(summary.file).prop('href', summary.url);
 
-                    var formattedNotes = summary.notes.replace(/#(\d+)/g, '[#$1](https://github.com/raul-ortega/u360gts/pull/$1)');
+                    var formattedNotes = summary.notes.replace(/#(\d+)/g, '[#$1](https://github.com/dollop80/EasyToTrack/pull/$1)');
                     formattedNotes = marked(formattedNotes);
                     $('div.release_info .notes').html(formattedNotes);
                     $('div.release_info .notes').find('a').each(function() {
@@ -95,13 +95,13 @@ TABS.firmware_flasher_avr.initialize = function (callback) {
     
         function buildJenkinsBoardOptions(builds) {
             if (!builds) {
-                $('select[name="board"]').empty().append('<option value="0">Offline</option>');
+                $('select[name="device_type"]').empty().append('<option value="0">Offline</option>');
                 $('select[name="firmware_version"]').empty().append('<option value="0">Offline</option>');
 
                 return;
             }
 
-            var boards_e = $('select[name="board"]');
+            var boards_e = $('select[name="device_type"]');
             var versions_e = $('select[name="firmware_version"]');
 
             var selectTargets = [];
@@ -116,7 +116,7 @@ TABS.firmware_flasher_avr.initialize = function (callback) {
                                     $("<option value='{0}'>{0}</option>".format(
                                             descriptor.target
                                     )).data('summary', descriptor);
-                            boards_e.append(select_e);
+                            ///boards_e.append(select_e);
                         }
                     });
                 });
@@ -126,17 +126,17 @@ TABS.firmware_flasher_avr.initialize = function (callback) {
             chrome.storage.local.get('selected_board', function (result) {
                 if (result.selected_board) {
                     var boardBuilds = builds[result.selected_board]
-                    $('select[name="board"]').val(boardBuilds ? result.selected_board : 0).trigger('change');
+                    $('select[name="device_type"]').val(boardBuilds ? result.selected_board : 0).trigger('change');
                 }
             });
         }
 
         function buildBoardOptions(releaseData, showDevReleases) {
             if (!releaseData) {
-                $('select[name="board"]').empty().append('<option value="0">Offline</option>');
+                $('select[name="device_type"]').empty().append('<option value="0">Offline</option>');
                 $('select[name="firmware_version"]').empty().append('<option value="0">Offline</option>');
             } else {
-                var boards_e = $('select[name="board"]');
+                var boards_e = $('select[name="device_type"]');
                 var versions_e = $('select[name="firmware_version"]');
 
                 var releases = {};
@@ -144,7 +144,7 @@ TABS.firmware_flasher_avr.initialize = function (callback) {
                 var unsortedTargets = [];
                 releaseData.forEach(function(release){
                     release.assets.forEach(function(asset){
-                        var targetFromFilenameExpression = /amv-open360tracker_([\d.]+(?:-rc\d+)?)?_?([^.]+)\.(.*)/;
+                        var targetFromFilenameExpression = /avr-ett_([\d.]+(?:-rc\d+)?)?_?([^.]+)\.(.*)/;
                         var match = targetFromFilenameExpression.exec(asset.name);
 
                         if ((!showDevReleases && release.prerelease) || !match) {
@@ -167,7 +167,7 @@ TABS.firmware_flasher_avr.initialize = function (callback) {
                     var version = matchVersionFromTag[1];
 
                     release.assets.forEach(function(asset){
-                        var targetFromFilenameExpression = /amv-open360tracker_([\d.]+(?:-rc\d+)?)?_?([^.]+)\.(.*)/;
+                        var targetFromFilenameExpression = /avr-ett_([\d.]+(?:-rc\d+)?)?_?([^.]+)\.(.*)/;
                         var match = targetFromFilenameExpression.exec(asset.name);
 
                         if ((!showDevReleases && release.prerelease) || !match) {
@@ -210,7 +210,7 @@ TABS.firmware_flasher_avr.initialize = function (callback) {
                                         $("<option value='{0}'>{0}</option>".format(
                                                 descriptor.target
                                         )).data('summary', descriptor);
-                                boards_e.append(select_e);
+                                ///boards_e.append(select_e);
                             }
                         });
                     });
@@ -219,7 +219,7 @@ TABS.firmware_flasher_avr.initialize = function (callback) {
                 chrome.storage.local.get('selected_board', function (result) {
                     if (result.selected_board) {
                         var boardReleases = releases[result.selected_board]
-                        $('select[name="board"]').val(boardReleases ? result.selected_board : 0).trigger('change');
+                        $('select[name="device_type"]').val(boardReleases ? result.selected_board : 0).trigger('change');
                     }
                 });
             }
@@ -235,25 +235,6 @@ TABS.firmware_flasher_avr.initialize = function (callback) {
                 buildType_e.val(0).trigger('change');
             }
         }
-
-
-
-        function flashAVR () {
-
-            console.debug('starting programmer');
-            //STK500.initialize();
-
-            var port = String($('div#port-picker #port').val()),
-                baud;
-            baud = 57600;//115200;
-            var options = null;
-            STK500.connect(port, baud, parsed_hex, options);
-
-
-
-        }
-        //flashAVR();
-
 
 
         var buildTypes = [
@@ -278,11 +259,16 @@ TABS.firmware_flasher_avr.initialize = function (callback) {
         // translate to user-selected language
         i18n.localizePage();
 
+        var build_type = 0;
+        if (!GUI.connect_lock) {
+            buildTypes[build_type].loader();
+        }
+
         buildType_e.change(function() {
             $("a.load_remote_file").addClass('disabled');
             var build_type = $(this).val();
 
-            $('select[name="board"]').empty()
+            $('select[name="device_type"]').empty()
             .append($("<option value='0'>{0}</option>".format(i18n.getMessage('firmwareFlasherOptionLabelSelectBoard'))));
 
             $('select[name="firmware_version"]').empty()
@@ -295,7 +281,8 @@ TABS.firmware_flasher_avr.initialize = function (callback) {
             chrome.storage.local.set({'selected_build_type': build_type});
         });
 
-        $('select[name="board"]').change(function() {
+        $('select[name="device_type"]').change(function() {
+
             $("a.load_remote_file").addClass('disabled');
             var target = $(this).val();
 
@@ -335,8 +322,6 @@ TABS.firmware_flasher_avr.initialize = function (callback) {
 
         // UI Hooks
         $('a.load_file').click(function () {
-
-            //flashAVR();
 
             chrome.fileSystem.chooseEntry({type: 'openFile', accepts: [{extensions: ['hex']}]}, function (fileEntry) {
                 if (chrome.runtime.lastError) {
@@ -460,7 +445,7 @@ TABS.firmware_flasher_avr.initialize = function (callback) {
                                     baud = parseInt($('#flash_manual_baud_rate').val());
                                 }
 
-
+                                options.board = $("#device_type").val();
                                 STK500.connect(port, baud, parsed_hex, options);
                             } else {
                                 console.log('Please select valid serial port');

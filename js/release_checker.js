@@ -17,7 +17,7 @@ ReleaseChecker.prototype.loadReleaseData = function (processFunction) {
         var releaseDataTimestamp = $.now();
         var cacheReleaseData = result[self._releaseDataTag];
         var cachedReleaseLastUpdate = result[self._releaseLastUpdateTag];
-        if (!cacheReleaseData || !cachedReleaseLastUpdate || releaseDataTimestamp - cachedReleaseLastUpdate > 3600 * 1000) {
+        if (!cacheReleaseData || !cachedReleaseLastUpdate || releaseDataTimestamp - cachedReleaseLastUpdate > 3600 * 1000 || true) {
             $.get(self._releaseUrl, function (releaseData) {
                 GUI.log(i18n.getMessage('releaseCheckLoaded',[self._releaseName]));
 

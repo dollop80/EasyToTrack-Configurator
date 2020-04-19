@@ -27,6 +27,8 @@ var STK500_protocol = function () {
     this.cmdStatus;
     this.pageCount = 0;
     this.PAGE_SIZE = 128;
+    this.FLASH_SIZE = 0;
+    this.EEPROM_SIZE = 0;
 
     this.status = {
         ACK:    0x79, // y
@@ -50,7 +52,9 @@ var STK500_protocol = function () {
 
     this.signature = {
         ATMEGA328:    [ 0x1e,  0x95 , 0x0f], // y
-        NACK:   0x1F
+        ATMEGA1284:   [ 0x1e,  0x97 , 0x06], // y
+        ATMEGA1284P:  [ 0x1e,  0x97 , 0x05], // y
+        ATMEGA8:      [ 0x1e,  0x93 , 0x07],
     };
     
     this.const = {
@@ -120,6 +124,32 @@ STK500_protocol.prototype.connect = function (port, baud, hex, options, callback
     self.hex = hex;
     self.baud = baud;
     self.callback = callback;
+
+    // we will crunch the options here since doing it inside initialization routine would be too late
+    self.options = {
+        board:          false,
+        erase_chip:     false
+    };
+
+    self.options.board = options.board;
+    switch (self.options.board) {
+        case 'OSD':
+            self.PAGE_SIZE = 256;
+            self.FLASH_SIZE = 128 * 1024;
+            self.EEPROM_SIZE = 1 * 1024;
+            break;
+        case 'SENDER':
+            self.PAGE_SIZE = 128;
+            self.FLASH_SIZE = 32 * 1024;
+            self.EEPROM_SIZE = 512;
+            break;
+        case 'GS':
+            self.PAGE_SIZE = 64;
+            self.FLASH_SIZE = 8 * 1024;
+            self.EEPROM_SIZE = 256;
+            break;
+    }
+
 
 
     if (true) {
@@ -361,7 +391,7 @@ STK500_protocol.prototype.upload_procedure = function (step) {
             var send_counter = 0;
             GUI.interval_add('stk500_initialize_mcu', function () { // 200 ms interval (just in case mcu was already initialized), we need to break the 2 bytes command requirement
                 self.send([self.const.STK_GET_SYNC, self.const.CRC_EOP], 2, function (reply) {
-                    console.log(parseInt(reply[0].toString(16) + ' ' + parseInt(reply[1].toString(16))));
+                    //console.log(parseInt(reply[0].toString(16) + ' ' + parseInt(reply[1].toString(16))));
                     if (reply[0] == self.const.STK_INSYNC && reply[1] == self.const.STK_OK) {
                         GUI.interval_remove('stk500_initialize_mcu');
                         console.log('STK500 - Serial interface initialized on the MCU side');
@@ -398,12 +428,29 @@ STK500_protocol.prototype.upload_procedure = function (step) {
             // get ID (device signature)
             self.send([self.const.STK_READ_SIGN, self.const.CRC_EOP], 4, function (data) {
                 data.shift(); //remove first element from response
-                if (self.verify_avr_signature(self.signature.ATMEGA328, data)) {
+                var res = false;
+                switch (self.options.board) {
+                    case 'OSD':
+                        res = self.verify_avr_signature(self.signature.ATMEGA1284, data);
+                        if(!res)
+                            res = self.verify_avr_signature(self.signature.ATMEGA1284P, data);
+                        break;
+                    case 'SENDER':
+                        res = self.verify_avr_signature(self.signature.ATMEGA328, data);
+                        break;
+                    case 'GS':
+                        res = self.verify_avr_signature(self.signature.ATMEGA8, data);
+                        break;
+                }
+
+                if (res) {
                     console.log('Chip signature is: ' + data[0].toString(16) + ' ' + data[1].toString(16) + ' ' + data[2].toString(16));
                     self.upload_procedure(3);
                 }
                 else
                 {
+                    console.log('Chip signature is not valid!');
+                    $('span.progressLabel').text(i18n.getMessage('stk500SignatureNotValid'));
                     // disconnect
                     self.upload_procedure(99);
                 }
@@ -447,8 +494,8 @@ STK500_protocol.prototype.upload_procedure = function (step) {
         case 45:
             // SetDeviceProgrammingParametersRequest
             var Bytes = [];
-            var flashSize = 32 * 1024;
-            var epromSize = 1024;
+            var flashSize = self.FLASH_SIZE;// 32 * 1024;
+            var epromSize = self.EEPROM_SIZE;//1024;
 
             Bytes[0] = self.const.STK_SET_DEVICE;
             Bytes[1] = 0x86;//mcu.DeviceCode;

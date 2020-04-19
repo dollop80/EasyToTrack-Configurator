@@ -22,14 +22,14 @@
          "vendorId": 1155
       } ]
    }, "webview", "unlimitedStorage" ],
-   "short_name": "EasyToTrack configurator v1.2.0",
+   "short_name": "EasyToTrack configurator v1.3.0",
    "sockets": {
       "tcp": {
          "connect": "*:*"
       }
    },
    "update_url": "https://clients2.google.com/service/update2/crx",
-   "version": "1.2.0",
+   "version": "1.3.0",
    "webview": {
       "partitions": [ {
          "accessible_resources": [ "tabs/map.html", "/js/tabs/map.js", "/images/icons/tracker-map-icon.png", "/images/icons/tracker-map-copter.png", "/images/icons/tracker-map-rover.png", "/images/icons/tracker-map-home.png", "/js/libraries/openlayer/css/ol.css", "/js/libraries/openlayer/build/ol.js", "/js/libraries/openlayer/build/ol.js.map" ],

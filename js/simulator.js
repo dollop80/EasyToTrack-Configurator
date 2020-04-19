@@ -129,6 +129,8 @@ function buildPacket(lat, lon, altitude, distance, heading, speed, vspeed, roll,
         packet = build_msp_raw_gps($("#simulation-fixtype").val(), $("#simulation-sats").val(), lat, lon, altitude+$("#simulator-altitude").val(), speed / 0.539957 * 0.278, heading);
         GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
 
+        packet = build_msp_altitude(altitude+$("#simulator-altitude").val(), vspeed);
+        GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
     }
     return packet;
 }

@@ -16,6 +16,26 @@ function mspPrepareMsg(messageID, payload, size){
 	return data;
 }
 
+function build_msp_altitude(_estAltitude, _estVertVel){
+
+	var estAltitude = _estAltitude * 100;
+	var estVertVel = _estVertVel * 100;
+	var baroAlt = estAltitude;
+
+	var msgBuffer = [];
+	var MSP_ALTITUDE = 109;
+
+	msgBuffer = packToBuffer(numberToBuffer(estAltitude,4), msgBuffer);
+	msgBuffer = packToBuffer(numberToBuffer(estVertVel,2), msgBuffer);
+	msgBuffer = packToBuffer(numberToBuffer(baroAlt,4), msgBuffer);
+
+	var bytes = new Uint8Array(msgBuffer.length);
+	for (var i = 0; i < msgBuffer.length; ++i) {
+		bytes[i] = msgBuffer[i];
+	}
+
+	return mspPrepareMsg(MSP_ALTITUDE, bytes, bytes.length);
+}
 
 function build_msp_attitude(_roll, _pitch, _yaw){
 
