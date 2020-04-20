@@ -42,7 +42,7 @@ TABS.sim.initialize = function (callback) {
 
             accDistance = 0;
             radius = $("#simulator-distance").val();
-            altitude = $("#simulator-altitude").val();
+            altitude = parseInt($("#simulator-altitude").val(),10);
             startDistance = radius; // Revisar
             simulationStarted = true;
             sendHomeTimer = new Date().getTime();
@@ -102,7 +102,7 @@ TABS.sim.initialize = function (callback) {
                     }
 
                 }
-                altitude = $("#simulator-altitude").val();
+                altitude = parseInt($("#simulator-altitude").val(),10);
 				speed = $("#simulator-speed").val() * 0.539957;
                 if (new Date().getTime() - sendHomeTimer < 10000) {
                     if(new Date().getTime() - sendHomeTimer > 5000)

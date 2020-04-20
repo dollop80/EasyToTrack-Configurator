@@ -18,8 +18,8 @@ function mspPrepareMsg(messageID, payload, size){
 
 function build_msp_altitude(_estAltitude, _estVertVel){
 
-	var estAltitude = _estAltitude * 100;
-	var estVertVel = _estVertVel * 100;
+	var estAltitude = _estAltitude * 100.0;
+	var estVertVel = _estVertVel * 100.0;
 	var baroAlt = estAltitude;
 
 	var msgBuffer = [];
@@ -40,8 +40,8 @@ function build_msp_altitude(_estAltitude, _estVertVel){
 function build_msp_attitude(_roll, _pitch, _yaw){
 
 	var roll = _roll * 1000;
-	var pitch = _pitch * 1000;
-	var yaw = _yaw * 1000;
+	var pitch = -_pitch * 1000;
+	var yaw = _yaw;
 
 	var msgBuffer = [];
 	var MSP_ATTITUDE = 108;
@@ -64,7 +64,7 @@ function build_msp_analog(_vbat, _mAhDrawn, _rssi, _amperage){
 	var vbat = _vbat*10;
 	var mAhDrawn = _mAhDrawn;
 	var rssi = _rssi;
-	var amperage = amperage;
+	var amperage = _amperage*100;
 
 	var msgBuffer = [];
 	var MSP_ANALOG = 110;

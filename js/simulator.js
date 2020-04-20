@@ -55,16 +55,16 @@ function buildPacket(lat, lon, altitude, distance, heading, speed, vspeed, roll,
     var forceError = $("#simulator-force-error").prop('checked');
     
     if (protocol == protocols.NMEA) {
-		packet = buildGPGGA(lat, lon, altitude+$("#simulator-altitude").val(), forceError);
+		packet = buildGPGGA(lat, lon, altitude+parseInt($("#simulator-gs-home-alt").val(),10), forceError);
 		GTS.send(packet + '\r\n');
-		packet = buildGPRMC(lat, lon, altitude+$("#simulator-altitude").val(), course, speed, forceError);
+		packet = buildGPRMC(lat, lon, altitude+parseInt($("#simulator-gs-home-alt").val(),10), course, speed, forceError);
 		GTS.send(packet + '\r\n');
 		packet = buildGSA();
 		GTS.send(packet + '\r\n');
 		
     } else if (protocol == protocols.MAVLINK) {
 
-        packet = build_mavlink_msg_gps_raw_int(lat, lon, altitude+$("#simulator-altitude").val(), Speed(speed / 0.539957), heading, forceError);
+        packet = build_mavlink_msg_gps_raw_int(lat, lon, altitude+parseInt($("#simulator-gs-home-alt").val(),10), Speed(speed / 0.539957), heading, forceError);
         GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
 /*
         packet = build_mavlink_msg_ahrs2(roll, pitch, heading * (Math.PI / 180.0), altitude + +$("#simulator-altitude").val(), lat, lon);
@@ -73,13 +73,13 @@ function buildPacket(lat, lon, altitude, distance, heading, speed, vspeed, roll,
         packet = build_mavlink_msg_altitude($("#simulator-altitude").val(), $("#simulator-altitude").val(), altitude+$("#simulator-altitude").val(), altitude+$("#simulator-altitude").val(), 0, 0);
         GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
 */
-        packet = build_mavlink_msg_gps_global_position_int(lat, lon, altitude+$("#simulator-altitude").val(), altitude, 0, 0, vspeed, heading);
+        packet = build_mavlink_msg_gps_global_position_int(lat, lon, altitude+parseInt($("#simulator-gs-home-alt").val(),10), altitude, 0, 0, vspeed, heading);
         GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
 
         packet = build_mavlink_msg_attitude(roll,pitch,heading * (Math.PI / 180.0), forceError );
         GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
 
-        packet = build_mavlink_msg_vfr_hud(speed / 0.539957 * 0.278, speed / 0.539957 * 0.278, altitude+$("#simulator-altitude").val(), vspeed, heading, 50);
+        packet = build_mavlink_msg_vfr_hud(speed / 0.539957 * 0.278, speed / 0.539957 * 0.278, altitude+parseInt($("#simulator-gs-home-alt").val(),10), vspeed, heading, 50);
         GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
 
 
@@ -126,10 +126,10 @@ function buildPacket(lat, lon, altitude, distance, heading, speed, vspeed, roll,
         packet = build_msp_analog($("#simulator-voltage").val(), 100, $("#simulator-rssi").val(), $("#simulator-current").val());
         GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
 
-        packet = build_msp_raw_gps($("#simulation-fixtype").val(), $("#simulation-sats").val(), lat, lon, altitude+$("#simulator-altitude").val(), speed / 0.539957 * 0.278, heading);
+        packet = build_msp_raw_gps($("#simulation-fixtype").val(), $("#simulation-sats").val(), lat, lon, altitude+parseInt($("#simulator-gs-home-alt").val(),10), speed / 0.539957 * 0.278, heading);
         GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
 
-        packet = build_msp_altitude(altitude+$("#simulator-altitude").val(), vspeed);
+        packet = build_msp_altitude(altitude+parseInt($("#simulator-gs-home-alt").val(),10), vspeed);
         GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
     }
     return packet;

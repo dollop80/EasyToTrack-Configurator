@@ -7,7 +7,7 @@ function getRndInteger(min, max) {
 }
 
 function build_mavlink_msg_gps_raw_int(lat,lon,alt,ground_speed,heading,force_error){
-	var system_id = 10;
+	var system_id = 1;
 	var component_id = 1;
 	var fixType = $("#simulation-fixtype").val();
 	var latitude = lat * 10000000; //474035790;
@@ -27,7 +27,7 @@ function build_mavlink_msg_gps_raw_int(lat,lon,alt,ground_speed,heading,force_er
 }
 
 function build_mavlink_msg_attitude(roll,pitch,yaw,force_error){
-	var system_id = 10;
+	var system_id = 1;
 	var component_id = 1;
 
 
@@ -39,7 +39,7 @@ function build_mavlink_msg_attitude(roll,pitch,yaw,force_error){
 }
 
 function build_mavlink_msg_vfr_hud(airspeed, groundspeed, alt, climb, heading, throttle){
-	var system_id = 10;
+	var system_id = 1;
 	var component_id = 1;
     var climbr = climb + getRndInteger(-1,1)/10.0;
 
@@ -51,7 +51,7 @@ function build_mavlink_msg_vfr_hud(airspeed, groundspeed, alt, climb, heading, t
 }
 
 function build_mavlink_msg_sys_status(_voltage, _current, remain){
-	var system_id = 10;
+	var system_id = 1;
 	var component_id = 1;
  	var voltage = _voltage * 1000 + getRndInteger(-100, 100);
  	var current = _current * 100 +  getRndInteger(-10, 10);
@@ -64,7 +64,7 @@ function build_mavlink_msg_sys_status(_voltage, _current, remain){
 }
 
 function build_mavlink_msg_ahrs2(roll, pitch, yaw, altitude, lat, lon){
-	var system_id = 10;
+	var system_id = 1;
 	var component_id = 1;
 
 	var latitude = lat * 10000000;
@@ -91,7 +91,7 @@ function build_mavlink_msg_altitude(alt_m, alt_a, alt_l, alt_r, alt_t, bott_clr)
 
 
 function build_mavlink_msg_gps_global_origin(lat, lon, alt){
-	var system_id = 10;
+	var system_id = 1;
 	var component_id = 1;
 	var latitude = lat * 10000000;
 	var longitude = lon * 10000000;
@@ -106,7 +106,7 @@ function build_mavlink_msg_gps_global_origin(lat, lon, alt){
 
 
 function build_mavlink_msg_gps_global_position_int(lat, lon, alt, rel_alt, vx, vy, vz, hdg){
-	var system_id = 10;
+	var system_id = 1;
 	var component_id = 1;
 	var latitude = lat * 10000000;
 	var longitude = lon * 10000000;
@@ -122,7 +122,7 @@ function build_mavlink_msg_gps_global_position_int(lat, lon, alt, rel_alt, vx, v
 }
 
 function build_mavlink_msg_home_position(lat, lon, alt){
-	var system_id = 10;
+	var system_id = 1;
 	var component_id = 1;
 	var latitude = lat * 10000000;
 	var longitude = lon * 10000000;
@@ -137,7 +137,7 @@ function build_mavlink_msg_home_position(lat, lon, alt){
 
 
 function build_mavlink_msg_heartbeat(type, armed){
-	var system_id = 10;
+	var system_id = 1;
 	var component_id = 1;
 
 	seq++;
