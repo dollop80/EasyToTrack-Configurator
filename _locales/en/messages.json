@@ -3716,17 +3716,62 @@
     "tabSettings": {
         "message": "Settings"
     },
-    "configurationMag": {
-        "message": "Compass (MAG)"
+    "configurationRssiSetup": {
+        "message": "RSSI setup"
+    },
+    "configurationVideoSetup": {
+        "message": "Video setup"
+    },
+    "configurationAzimuthCorrection": {
+        "message": "Azimuth correction"
+    },
+    "configurationAzimuthServoMin": {
+        "message": "Azimuth servo MIN limit"
+    },
+    "configurationAzimuthServoMax": {
+        "message": "Azimuth servo MAX limit"
+    },
+    "configurationElevationServoMin": {
+        "message": "Elevation servo MIN limit"
+    },
+    "configurationElevationServoMax": {
+        "message": "Elevation servo MAX limit"
+    },
+    "configurationSaveServoLimits": {
+        "message": "Save Servo Limits"
+    },
+    "configurationEnableServoLimitsEdit": {
+        "message": "Enable Servo Limits Edit"
+    },
+    "configurationSaveAzimuthCorrection": {
+        "message": "Save Azimuth Correction"
+    },
+    "configurationSaveRSSImin": {
+        "message": "Set RSSI min"
+    },
+    "configurationAzimuth360Mode": {
+        "message": "360 degrees Azimuth Servo Mode"
+    },
+    "configurationServoLimits": {
+        "message": "Servo limits"
+    },
+    "configurationServoSlowdown": {
+        "message": "Servo slowdown, [s]"
+    },
+    "configurationServoConfigButton": {
+        "message": "Save"
+    },
+    "configurationServos": {
+        "message": "Servo general parameters"
     },
     "configurationCalibrateMagButton": {
         "message": "Calibrate Mag"
     },
-    "configurationMagCalibratedCheckbox": {
-        "message": "Calibration Done"
+    "configurationSetServosToDefaultOnExitCheckbox": {
+        "message": "Set servos to default positions on exit"
     },
-    "configurationMagOffset": {
-        "message": "Offset (degrees)"
+    "configurationSaveCurrentServoPosAsDefaultCheckbox": {
+        "message": "Save current servo position as default"
     },
     "configurationMagCalibrationStartedLogMessage": {
         "message": "MAG calibración started"

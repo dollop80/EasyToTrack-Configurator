@@ -23,6 +23,7 @@ var rollPrev = 0;
 var pitch = 0;
 var pitchPrev = 0;
 var simStartTime = 0;
+var currentConsumed = 0;
 var vehicleType = 'plane';
 var armed = false;
 var protocols = {
@@ -30,7 +31,9 @@ var protocols = {
     MAVLINK: 2,
     PITLAB: 3,
     MFD: 4,
-    MSP: 5
+    MSP: 5,
+    UBX: 6,
+    LTM: 7
 };
 
 function Speed(value) {
@@ -123,13 +126,31 @@ function buildPacket(lat, lon, altitude, distance, heading, speed, vspeed, roll,
         packet = build_msp_attitude(roll, pitch, heading);
         GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
 
-        packet = build_msp_analog($("#simulator-voltage").val(), 100, $("#simulator-rssi").val(), $("#simulator-current").val());
+        packet = build_msp_analog($("#simulator-voltage").val(), currentConsumed, $("#simulator-rssi").val(), $("#simulator-current").val());
         GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
 
         packet = build_msp_raw_gps($("#simulation-fixtype").val(), $("#simulation-sats").val(), lat, lon, altitude+parseInt($("#simulator-gs-home-alt").val(),10), speed / 0.539957 * 0.278, heading);
         GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
 
         packet = build_msp_altitude(altitude+parseInt($("#simulator-gs-home-alt").val(),10), vspeed);
+        GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
+    } else if (protocol == protocols.UBX) {
+        var d = new Date().getUTCDay(); // get current date
+        iTOW = d * 24 * 60 * 60 * 1000 + new Date().getHours() * 60 * 60 * 1000 + new Date().getMinutes() * 60 * 1000 + new Date().getSeconds() * 1000 + new Date().getMilliseconds();
+        //console.log(d + " " + new Date().getHours() + " " + new Date().getMinutes() + " " + new Date().getSeconds() + " " + new Date().getMilliseconds());
+        packet = build_ubx_nav_posllh(iTOW, lat, lon, altitude, 100*(6.0/$("#simulation-sats").val()))
+        GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
+
+        packet = build_ubx_nav_status(iTOW, $("#simulation-fixtype").val());
+        GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
+    } else if (protocol == protocols.LTM) {
+        packet = build_ltm_Aframe(roll, pitch, heading);
+        GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
+
+        packet = build_ltm_Sframe($("#simulator-voltage").val(), currentConsumed, $("#simulator-rssi").val(), armed);
+        GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
+
+        packet = build_ltm_Gframe($("#simulation-fixtype").val(), $("#simulation-sats").val(), lat, lon, altitude+parseInt($("#simulator-gs-home-alt").val(),10), speed / 0.539957 * 0.278);
         GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
     }
     return packet;

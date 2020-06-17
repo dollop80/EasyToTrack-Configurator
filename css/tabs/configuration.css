@@ -80,6 +80,12 @@
     line-height: 18px;
 }
 
+
+.tab-configuration .number_plus_btn {
+    display: flex;
+}
+
+
 .tab-configuration .number input {
     width: 55px;
     padding-left: 3px;
@@ -464,6 +470,8 @@
     padding-top: 0px;
     margin-bottom: 0px;
 }
+
+
 
 #mixercontent .mixercanvas {
     background-color: #f9f9f9;

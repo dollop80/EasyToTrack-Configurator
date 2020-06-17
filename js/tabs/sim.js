@@ -232,6 +232,8 @@ TABS.sim.initialize = function (callback) {
                         break;
                 }
 
+                currentConsumed += 1000 * parseInt($("#simulator-current").val(), 10) * ($("#simulation-frequency").val()/1000.0/3600.0);
+
                 vspeed = (altitude - altitudePrev) / (varTime / 1000);
 
                 coursePrev = course;

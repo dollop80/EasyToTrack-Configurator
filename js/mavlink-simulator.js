@@ -536,7 +536,7 @@ mavlink_msg_heartbeat = function(system_id, component_id, seq, type, armed) {
 	var autopilot = 3; /*<  Autopilot type / class. Use MAV_AUTOPILOT_INVALID for components that are not flight controllers.*/
 	var base_mode = armed == true ? 0x58 | 0x80 : 0x58;//89; /*<  System mode bitmap.*/
 	var system_status = 4; /*<  System status flag.*/
-	var mavlink_version = 3; /*<  MAVLink version, not writable by user, gets added by protocol because of magic data type: uint8_t_mavlink_version*/
+	var mavlink_version = 1 * 100; /*<  MAVLink version, not writable by user, gets added by protocol because of magic data type: uint8_t_mavlink_version*/
 
 
 	msgBuffer = packToBuffer(numberToBuffer(payload_length,1), msgBuffer);

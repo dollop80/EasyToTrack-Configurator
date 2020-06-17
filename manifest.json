@@ -22,7 +22,7 @@
          "vendorId": 1155
       } ]
    }, "webview", "unlimitedStorage" ],
-   "short_name": "EasyToTrack configurator v1.3.0",
+   "short_name": "EasyToTrack configurator v1.4.0",
    "sockets": {
       "tcp": {
          "connect": "*:*"

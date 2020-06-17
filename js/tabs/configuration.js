@@ -25,46 +25,99 @@ TABS.configuration.initialize = function (callback) {
             GUI.reboot();
         });
 		
-        $('#tilt-slider').on('input', function () {
-            $('#tilt-output').val($('#tilt-slider').val());
-	    TABS.configuration.moveServo('tilt',$('#tilt-output').val());
+        $('#azimuth_min-slider').on('input', function () {
+            $('#azimuth_min-output').val($('#azimuth_min-slider').val());
+	    TABS.configuration.moveServo(1);
         });
-        $('#tilt-output').on('input', function () {
-            if ($('#tilt-output').val() !== $('#tilt-slider').val()) {
-                console.log("Mueve tilt");
-                $('#tilt-slider').val($('#tilt-output').val());
-		TABS.configuration.moveServo('tilt',$('#tilt-output').val());
+        $('#azimuth_min-output').on('input', function () {
+            if ($('#azimuth_min-output').val() !== $('#azimuth_min-slider').val()) {
+                $('#azimuth_min-slider').val($('#azimuth_min-output').val());
+		TABS.configuration.moveServo(1);
             }
         });
-	$('#tilt0-spinner').on('input', function () {
-	    TABS.configuration.moveServo('tilt',$('#tilt-output').val());
+
+        $('#azimuth_max-slider').on('input', function () {
+            $('#azimuth_max-output').val($('#azimuth_max-slider').val());
+            TABS.configuration.moveServo(2);
         });
-	$('#tilt90-spinner').on('input', function () {
-	    TABS.configuration.moveServo('tilt',$('#tilt-output').val());
-        });
-        $('#pan-slider').on('input', function () {
-            $('#pan-output').val($('#pan-slider').val());
-	    TABS.configuration.moveServo('heading',$('#pan-output').val());
-        });
-        $('#pan-output').on('input', function () {
-            if ($('#pan-output').val() !== $('#pan-slider').val()) {
-                console.log("Mueve pan");
-                $('#pan-slider').val($('#pan-output').val());
-	        TABS.configuration.moveServo('heading',$('#pan-output').val());
+        $('#azimuth_max-output').on('input', function () {
+            if ($('#azimuth_max-output').val() !== $('#azimuth_max-slider').val()) {
+                $('#azimuth_max-slider').val($('#azimuth_max-output').val());
+                TABS.configuration.moveServo(2);
             }
         });
-        $("#calibrate_mag").click(function () {
-            GUI.calibrate_lock = true;
-            self.calibrateMag();
+
+        $('#elevation_min-slider').on('input', function () {
+            $('#elevation_min-output').val($('#elevation_min-slider').val());
+            TABS.configuration.moveServo(3);
         });
-        $("#calibrate_pan").click(function () {
-            GUI.calibrate_lock = true;
-            self.calibratePan();
+        $('#elevation_min-output').on('input', function () {
+            if ($('#elevation_min-output').val() !== $('#elevation_min-slider').val()) {
+                $('#elevation_min-slider').val($('#elevation_min-output').val());
+                TABS.configuration.moveServo(3);
+            }
         });
-        
+
+        $('#elevation_max-slider').on('input', function () {
+            $('#elevation_max-output').val($('#elevation_max-slider').val());
+            TABS.configuration.moveServo(4);
+        });
+        $('#elevation_max-output').on('input', function () {
+            if ($('#elevation_max-output').val() !== $('#elevation_max-slider').val()) {
+                $('#elevation_max-slider').val($('#elevation_max-output').val());
+                TABS.configuration.moveServo(4);
+            }
+        });
+
+
+        $("#saveServoLimits").click(function () {
+            //GUI.calibrate_lock = true;
+            self.moveServo(6); // Save servo settings
+        });
+
+        $("#save_srv_config").click(function () {
+            //GUI.calibrate_lock = true;
+            self.sendParamsPacket(); // Save servo parameters
+        });
+        $("#saveAzimuthCorrection").click(function () {
+            //GUI.calibrate_lock = true;
+            self.sendAzimuthCorrection(1); // Save servo parameters
+        });
+
+
+        $('#azimuth_correction-slider').on('input', function () {
+            $('#azimuth_correction-output').val($('#azimuth_correction-slider').val());
+            AzimuthCorrectionValue = $('#azimuth_correction-slider').val();
+            TABS.configuration.sendAzimuthCorrection(0);
+        });
+        $('#azimuth_correction-output').on('input', function () {
+            if ($('#azimuth_correction-output').val() !== $('#azimuth_correction-slider').val()) {
+                $('#azimuth_correction-slider').val($('#azimuth_correction-output').val());
+                AzimuthCorrectionValue = $('#azimuth_correction-output').val();
+                TABS.configuration.sendAzimuthCorrection(0);
+            }
+        });
+
+
+        $('input[id="azimuth360mode-checkbox"]').prop("disabled", true);
+        $('input[id="azimuth_min-slider"]').prop("disabled", true);
+        $('input[id="azimuth_min-output"]').prop("disabled", true);
+
+        $('input[id="azimuth_max-slider"]').prop("disabled", true);
+        $('input[id="azimuth_max-output"]').prop("disabled", true);
+
+        $('input[id="elevation_min-slider"]').prop("disabled", true);
+        $('input[id="elevation_min-output"]').prop("disabled", true);
+
+        $('input[id="elevation_max-slider"]').prop("disabled", true);
+        $('input[id="elevation_max-output"]').prop("disabled", true);
+
+        $('input[id="saveServoLimits"]').prop("disabled", true);
+
         GUI.content_ready(callback);
         
     });
+
 };
 TABS.configuration.loadData = function (data) {
 
@@ -203,11 +256,99 @@ TABS.configuration.loadData = function (data) {
 
 
 };
+TABS.configuration.buildServoReqPacket = function(){
+    var SYN_UART = 0x5a;
+    var crc = 0;
+    var j = 0;
+    var msgBuffer = [];
+
+
+    msgBuffer[j++] = SYN_UART;
+    msgBuffer[j++] = 0x03;
+    crc = 0x03;
+    msgBuffer[j++] = 0x01;
+    crc ^= 1;
+    for (var i = 0; i < 3; i++)
+    {
+        crc ^= SYN_UART;
+        msgBuffer[j++] = SYN_UART;
+    }
+    msgBuffer[j++] = crc;
+    msgBuffer[j++] = '\r'.charCodeAt();
+    msgBuffer[j] = '\n'.charCodeAt();
+
+    var bytes = new Uint8Array(msgBuffer.length);
+    for (var i = 0; i < msgBuffer.length; ++i) {
+        bytes[i] = msgBuffer[i];
+    }
+    return bytes;
+}
+
+TABS.configuration.buildDataPacket = function(type, inbuff, cnt){
+    var crc;
+    var j = 0;
+    var SYN_UART = 0x5a;
+    var outbuff = [];
+
+    outbuff[j++]=SYN_UART;
+    outbuff[j++]=cnt;
+    crc=cnt;
+    outbuff[j++]=type;
+    crc^=type;
+    for(var i=0; i<cnt; i++)
+    {
+        crc^=inbuff[i];
+        outbuff[j++]=inbuff[i];
+    }
+    outbuff[j++]=crc;
+    outbuff[j++]='\r'.charCodeAt();
+    outbuff[j]='\n'.charCodeAt();
+
+    var bytes = new Uint8Array(outbuff.length);
+    for (var i = 0; i < outbuff.length; ++i) {
+        bytes[i] = outbuff[i];
+    }
+    return bytes;
+}
 
 TABS.configuration.getData = function () {
     TABS.configuration.lastCommand = "set";
-    GTS.send("set\nfeature\nserial\nstatus\n");
+    var packet = TABS.configuration.buildServoReqPacket();
+    GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
 };
+
+TABS.configuration.encodeServoData = function(outbuff, mode) {
+    outbuff[1]= Math.round($('input[id="azimuth_min-output"]').val() * 2.5) & 0xFF;
+    outbuff[0]= Math.round($('input[id="azimuth_min-output"]').val() * 2.5) >>8;
+    outbuff[3]= Math.round($('input[id="elevation_min-output"]').val() * 2.5) & 0xFF;
+    outbuff[2]= Math.round($('input[id="elevation_min-output"]').val() * 2.5) >>8;
+    outbuff[5]= Math.round($('input[id="azimuth_max-output"]').val() * 2.5) & 0xFF;
+    outbuff[4]= Math.round($('input[id="azimuth_max-output"]').val() * 2.5) >>8;
+    outbuff[7]= Math.round($('input[id="elevation_max-output"]').val() * 2.5) & 0xFF;
+    outbuff[6]= Math.round($('input[id="elevation_max-output"]').val() * 2.5) >>8;
+    if($('input[id="azimuth360mode-checkbox"]').val()=== "true")
+        outbuff[9]=1;
+    else
+        outbuff[9]=0;
+    outbuff[8]=mode;
+}
+
+TABS.configuration.encodeParamsData = function(outbuff, mode) {
+    outbuff[1]= 0x00;
+    outbuff[0]= Math.round($('input[id="servo_slowdown-spinner"]').val() * 24.0);
+    if($('input[id="save_curr_pos_servo-checkbox"]').val() === "true")
+    {
+        outbuff[1]= 0x01;
+    }
+    outbuff[2]= mode;
+}
+
+TABS.configuration.encodeEncodeAzimuthData = function(outbuff, mode) {
+    outbuff[1]= AzimuthCorrectionValue & 0xFF;
+    outbuff[0]= (AzimuthCorrectionValue >> 8) & 0xFF;
+    outbuff[2]= mode;
+}
+
 
 TABS.configuration.switcheryChange = function (elem) {
 
@@ -215,6 +356,49 @@ TABS.configuration.switcheryChange = function (elem) {
     if (elemID.contains("-checkbox")) {
 
         var param = elemID.slice(0, elemID.indexOf("-checkbox"));
+
+        if(elemID.contains("enableServoLimitsEdit"))
+        {
+            if ($(elem).val() === "true")
+            {
+                $('input[id="azimuth360mode-checkbox"]').prop("disabled", true);
+                $('input[id="azimuth_min-slider"]').prop("disabled", true);
+                $('input[id="azimuth_min-output"]').prop("disabled", true);
+
+                $('input[id="azimuth_max-slider"]').prop("disabled", true);
+                $('input[id="azimuth_max-output"]').prop("disabled", true);
+
+                $('input[id="elevation_min-slider"]').prop("disabled", true);
+                $('input[id="elevation_min-output"]').prop("disabled", true);
+
+                $('input[id="elevation_max-slider"]').prop("disabled", true);
+                $('input[id="elevation_max-output"]').prop("disabled", true);
+
+                $('input[id="saveServoLimits"]').prop("disabled", true);
+
+                TABS.configuration.moveServo(0);
+            }
+            else
+            {
+                $('input[id="azimuth360mode-checkbox"]').prop("disabled", false);
+                $('input[id="azimuth_min-slider"]').prop("disabled", false);
+                $('input[id="azimuth_min-output"]').prop("disabled", false);
+
+                $('input[id="azimuth_max-slider"]').prop("disabled", false);
+                $('input[id="azimuth_max-output"]').prop("disabled", false);
+
+                $('input[id="elevation_min-slider"]').prop("disabled", false);
+                $('input[id="elevation_min-output"]').prop("disabled", false);
+
+                $('input[id="elevation_max-slider"]').prop("disabled", false);
+                $('input[id="elevation_max-output"]').prop("disabled", false);
+
+                $('input[id="saveServoLimits"]').prop("disabled", false);
+            }
+
+
+        }
+
         if (elemID.contains("mag_calibrated") || elemID.contains("pan0_calibrated")) {
 
             var ON = "1";
@@ -311,10 +495,44 @@ TABS.configuration.parseCalibratePan = function (line) {
     }
 }
 
-TABS.configuration.moveServo = function(servo,angle){
-	if (TABS.configuration.lastCommandDone){
-		TABS.configuration.lastCommand = servo;
-		TABS.configuration.lastCommandDone = false;
-		GTS.send(servo + ' ' + angle + '\n');
-	}		
+TABS.configuration.loadServoCalibValues = function (AzimuthMinValue, AzimuthMaxValue, ElevationMinValue, ElevationMaxValue,
+                                                    Mode360Value, delay_change_ppm, TrSoundEnableValue, AzimuthCorrectionValue) {
+    $('#azimuth_min-slider').val(Math.round(AzimuthMinValue / 2.5)); $('#azimuth_min-output').val(Math.round(AzimuthMinValue / 2.5));
+    $('#azimuth_max-slider').val(Math.round(AzimuthMaxValue / 2.5)); $('#azimuth_max-output').val(Math.round(AzimuthMaxValue / 2.5));
+    $('#elevation_min-slider').val(Math.round(ElevationMinValue / 2.5)); $('#elevation_min-output').val(Math.round(ElevationMinValue / 2.5));
+    $('#elevation_max-slider').val(Math.round(ElevationMaxValue / 2.5)); $('#elevation_max-output').val(Math.round(ElevationMaxValue / 2.5));
+    $('#azimuth360mode-checkbox').prop('checked', Mode360Value);
+    $('#servo_slowdown-spinner').val(delay_change_ppm);
+    $('#azimuth_correction-slider').val(AzimuthCorrectionValue); $('#azimuth_correction-output').val(AzimuthCorrectionValue);
+}
+
+TABS.configuration.moveServo = function(mode){
+    var encodedbuff = [];
+    var cnt = 10;
+    var type = FROMHOST_MSG_ID_SETUP;
+
+    TABS.configuration.encodeServoData(encodedbuff, mode);
+    var packet = TABS.configuration.buildDataPacket(type, encodedbuff, cnt);
+    GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
+}
+
+TABS.configuration.sendParamsPacket = function(){
+    var encodedbuff = [];
+    var mode = 0;
+    var cnt = 3;
+    var type = FROMHOST_PARAMS_ID_SETUP;
+
+    TABS.configuration.encodeParamsData(encodedbuff, mode);
+    var packet = TABS.configuration.buildDataPacket(type, encodedbuff, cnt);
+    GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
+}
+
+TABS.configuration.sendAzimuthCorrection = function(mode){
+    var encodedbuff = [];
+    var cnt = 3;
+    var type = FROMHOST_AZIMUTH_MSG_ID;
+
+    TABS.configuration.encodeEncodeAzimuthData(encodedbuff, mode);
+    var packet = TABS.configuration.buildDataPacket(type, encodedbuff, cnt);
+    GTS.send(String.fromCharCode.apply(null, new Uint8Array(packet)));
 }
