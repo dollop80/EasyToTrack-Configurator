@@ -88,7 +88,12 @@ TABS.firmware_flasher_avr.initialize = function (callback) {
             summary = typeof summary === "object" 
                 ? summary 
                 : $('select[name="firmware_version"] option:selected').data('summary');
-            process_hex(data, summary);
+            if(summary.file.contains(".zip"))
+            {
+                $('span.progressLabel').html('<a class="save_firmware" href="#" title="Save Firmware, unzip it and flash it with ESPTool">Loaded Firmware for ESP32. Click here to save it on disk. Flash it using ESPTool</a>');
+            } else {
+                process_hex(data, summary);
+            }
             $("a.load_remote_file").removeClass('disabled');
             $("a.load_remote_file").text(i18n.getMessage('firmwareFlasherButtonLoadOnline'));
         };
@@ -177,7 +182,7 @@ TABS.firmware_flasher_avr.initialize = function (callback) {
                         var target = match[2];
                         var format = match[3];
 
-                        if (format != 'hex') {
+                        if (!(format == 'hex' || format == 'zip')) {
                             return;
                         }
 
@@ -352,7 +357,6 @@ TABS.firmware_flasher_avr.initialize = function (callback) {
                                 console.log('File loaded');
 
                                 intel_hex = e.target.result;
-
                                 parse_hex(intel_hex, function (data) {
                                     parsed_hex = data;
 

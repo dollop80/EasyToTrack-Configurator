@@ -437,6 +437,15 @@ function onClosed(result) {
         GUI.log(i18n.getMessage('serialPortClosedFail'));
     }
 
+
+
+
+    simulationStarted = false;
+    GUI.interval_kill_all(false);
+
+
+
+
     $('#tabs ul.mode-connected').hide();
     $('#tabs ul.mode-connected-cli').hide();
     $('#tabs ul.mode-disconnected').show();
